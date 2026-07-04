@@ -118,5 +118,109 @@
         "testsFile": "content/reaya-decimals/12-test.json"
       }
     ]
+  },
+  {
+    "id": "reaya-percentages",
+    "title": "חשבון ז - אחוזים",
+    "subject": "חשבון",
+    "description": "קורס בן 12 יחידות בנושא אחוזים לרעיה: משמעות האחוז, מעבר בין אחוזים שברים ועשרוניים, חישוב אחוז מכמות, הנחות, התייקרות, השוואות ובעיות מילוליות.",
+    "units": [
+      {
+        "id": "percentages-01",
+        "title": "מהו אחוז",
+        "description": "היכרות עם המשמעות של אחוז כחלק מתוך מאה.",
+        "lessonFile": "content/reaya-percentages/01-what-is-percent.md",
+        "exercisesFile": "content/reaya-percentages/01-exercises.json",
+        "testsFile": "content/reaya-percentages/01-test.json"
+      },
+      {
+        "id": "percentages-02",
+        "title": "אחוזים, שברים ועשרוניים",
+        "description": "מעבר בין אחוז, שבר פשוט ומספר עשרוני.",
+        "lessonFile": "content/reaya-percentages/02-percent-fractions-decimals.md",
+        "exercisesFile": "content/reaya-percentages/02-exercises.json",
+        "testsFile": "content/reaya-percentages/02-test.json"
+      },
+      {
+        "id": "percentages-03",
+        "title": "חישוב אחוז מכמות",
+        "description": "מציאת חלק מתוך כמות בעזרת אחוזים.",
+        "lessonFile": "content/reaya-percentages/03-finding-percent-of-quantity.md",
+        "exercisesFile": "content/reaya-percentages/03-exercises.json",
+        "testsFile": "content/reaya-percentages/03-test.json"
+      },
+      {
+        "id": "percentages-04",
+        "title": "אחוזים נפוצים: 10%, 25%, 50%, 75%",
+        "description": "שימוש באחוזים שכדאי לזהות במהירות.",
+        "lessonFile": "content/reaya-percentages/04-common-percentages.md",
+        "exercisesFile": "content/reaya-percentages/04-exercises.json",
+        "testsFile": "content/reaya-percentages/04-test.json"
+      },
+      {
+        "id": "percentages-05",
+        "title": "מציאת השלם לפי אחוז",
+        "description": "כאשר ידוע החלק והאחוז, מוצאים את הכמות השלמה.",
+        "lessonFile": "content/reaya-percentages/05-finding-the-whole.md",
+        "exercisesFile": "content/reaya-percentages/05-exercises.json",
+        "testsFile": "content/reaya-percentages/05-test.json"
+      },
+      {
+        "id": "percentages-06",
+        "title": "הנחות ומבצעים",
+        "description": "חישוב מחיר לאחר הנחה באחוזים.",
+        "lessonFile": "content/reaya-percentages/06-discounts-and-sales.md",
+        "exercisesFile": "content/reaya-percentages/06-exercises.json",
+        "testsFile": "content/reaya-percentages/06-test.json"
+      },
+      {
+        "id": "percentages-07",
+        "title": "התייקרות והוזלה באחוזים",
+        "description": "הבנת שינוי באחוזים כלפי מעלה וכלפי מטה.",
+        "lessonFile": "content/reaya-percentages/07-increase-and-decrease.md",
+        "exercisesFile": "content/reaya-percentages/07-exercises.json",
+        "testsFile": "content/reaya-percentages/07-test.json"
+      },
+      {
+        "id": "percentages-08",
+        "title": "השוואת אחוזים",
+        "description": "השוואה בין אחוזים ובין חלקים מכמויות שונות.",
+        "lessonFile": "content/reaya-percentages/08-comparing-percentages.md",
+        "exercisesFile": "content/reaya-percentages/08-exercises.json",
+        "testsFile": "content/reaya-percentages/08-test.json"
+      },
+      {
+        "id": "percentages-09",
+        "title": "אחוזים בדיאגרמות ונתונים",
+        "description": "קריאת אחוזים מתוך טבלאות, סקרים ותרשימים.",
+        "lessonFile": "content/reaya-percentages/09-percentages-in-data.md",
+        "exercisesFile": "content/reaya-percentages/09-exercises.json",
+        "testsFile": "content/reaya-percentages/09-test.json"
+      },
+      {
+        "id": "percentages-10",
+        "title": "בעיות מילוליות באחוזים",
+        "description": "פתרון שאלות אחוזים מתוך סיפורים ומצבים יומיומיים.",
+        "lessonFile": "content/reaya-percentages/10-word-problems.md",
+        "exercisesFile": "content/reaya-percentages/10-exercises.json",
+        "testsFile": "content/reaya-percentages/10-test.json"
+      },
+      {
+        "id": "percentages-11",
+        "title": "אחוזים בחיי היום יום",
+        "description": "יישום אחוזים בכסף, ציונים, סוללה ומתכונים.",
+        "lessonFile": "content/reaya-percentages/11-everyday-percentages.md",
+        "exercisesFile": "content/reaya-percentages/11-exercises.json",
+        "testsFile": "content/reaya-percentages/11-test.json"
+      },
+      {
+        "id": "percentages-12",
+        "title": "חזרה והערכה מסכמת",
+        "description": "חזרה על כל נושאי האחוזים ותרגול מסכם.",
+        "lessonFile": "content/reaya-percentages/12-review-and-assessment.md",
+        "exercisesFile": "content/reaya-percentages/12-exercises.json",
+        "testsFile": "content/reaya-percentages/12-test.json"
+      }
+    ]
   }
 ]

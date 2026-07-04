@@ -1,0 +1,68 @@
+[
+  {
+    "id": "u04-test-1",
+    "type": "multiple_choice",
+    "prompt": "75% הם:",
+    "correctAnswer": "שלושה רבעים",
+    "points": 15,
+    "explanation": "התשובה הנכונה היא שלושה רבעים. בדקי מהו השלם ואז חשבי את האחוז המתאים.",
+    "choices": [
+      "שלושה רבעים",
+      "חצי",
+      "רבע",
+      "עשירית"
+    ]
+  },
+  {
+    "id": "u04-test-2",
+    "type": "short_answer",
+    "prompt": "כמה הם 50% מתוך 98?",
+    "correctAnswer": "49",
+    "points": 15,
+    "explanation": "התשובה הנכונה היא 49. בדקי מהו השלם ואז חשבי את האחוז המתאים."
+  },
+  {
+    "id": "u04-test-3",
+    "type": "short_answer",
+    "prompt": "כמה הם 10% מתוך 210?",
+    "correctAnswer": "21",
+    "points": 15,
+    "explanation": "התשובה הנכונה היא 21. בדקי מהו השלם ואז חשבי את האחוז המתאים."
+  },
+  {
+    "id": "u04-test-4",
+    "type": "multiple_choice",
+    "prompt": "25% מתוך 44 הם:",
+    "correctAnswer": "11",
+    "points": 15,
+    "explanation": "התשובה הנכונה היא 11. בדקי מהו השלם ואז חשבי את האחוז המתאים.",
+    "choices": [
+      "11",
+      "22",
+      "4",
+      "33"
+    ]
+  },
+  {
+    "id": "u04-test-5",
+    "type": "short_answer",
+    "prompt": "כמה הם 75% מתוך 60?",
+    "correctAnswer": "45",
+    "points": 20,
+    "explanation": "התשובה הנכונה היא 45. בדקי מהו השלם ואז חשבי את האחוז המתאים."
+  },
+  {
+    "id": "u04-test-6",
+    "type": "multiple_choice",
+    "prompt": "50% מתאים לשבר:",
+    "correctAnswer": "1/2",
+    "points": 20,
+    "explanation": "התשובה הנכונה היא 1/2. בדקי מהו השלם ואז חשבי את האחוז המתאים.",
+    "choices": [
+      "1/2",
+      "1/4",
+      "1/10",
+      "3/4"
+    ]
+  }
+]

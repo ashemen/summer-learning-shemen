@@ -1,0 +1,68 @@
+[
+  {
+    "id": "u02-test-1",
+    "type": "multiple_choice",
+    "prompt": "25% שווים ל:",
+    "correctAnswer": "1/4",
+    "points": 15,
+    "explanation": "התשובה הנכונה היא 1/4. בדקי מהו השלם ואז חשבי את האחוז המתאים.",
+    "choices": [
+      "1/4",
+      "1/2",
+      "3/4",
+      "1/5"
+    ]
+  },
+  {
+    "id": "u02-test-2",
+    "type": "short_answer",
+    "prompt": "כתבי 0.8 כאחוז",
+    "correctAnswer": "80%",
+    "points": 15,
+    "explanation": "התשובה הנכונה היא 80%. בדקי מהו השלם ואז חשבי את האחוז המתאים."
+  },
+  {
+    "id": "u02-test-3",
+    "type": "short_answer",
+    "prompt": "כתבי 50% כמספר עשרוני",
+    "correctAnswer": "0.5",
+    "points": 15,
+    "explanation": "התשובה הנכונה היא 0.5. בדקי מהו השלם ואז חשבי את האחוז המתאים."
+  },
+  {
+    "id": "u02-test-4",
+    "type": "multiple_choice",
+    "prompt": "75% שווים ל:",
+    "correctAnswer": "0.75",
+    "points": 15,
+    "explanation": "התשובה הנכונה היא 0.75. בדקי מהו השלם ואז חשבי את האחוז המתאים.",
+    "choices": [
+      "0.75",
+      "0.075",
+      "7.5",
+      "75.0"
+    ]
+  },
+  {
+    "id": "u02-test-5",
+    "type": "short_answer",
+    "prompt": "איזה אחוז מתאים לשבר 1/2?",
+    "correctAnswer": "50%",
+    "points": 20,
+    "explanation": "התשובה הנכונה היא 50%. בדקי מהו השלם ואז חשבי את האחוז המתאים."
+  },
+  {
+    "id": "u02-test-6",
+    "type": "multiple_choice",
+    "prompt": "10/100 שווה ל:",
+    "correctAnswer": "10%",
+    "points": 20,
+    "explanation": "התשובה הנכונה היא 10%. בדקי מהו השלם ואז חשבי את האחוז המתאים.",
+    "choices": [
+      "10%",
+      "100%",
+      "1%",
+      "0.10%"
+    ]
+  }
+]

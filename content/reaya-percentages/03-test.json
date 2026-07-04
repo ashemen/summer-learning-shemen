@@ -1,0 +1,68 @@
+[
+  {
+    "id": "u03-test-1",
+    "type": "short_answer",
+    "prompt": "כמה הם 10% מתוך 130?",
+    "correctAnswer": "13",
+    "points": 15,
+    "explanation": "התשובה הנכונה היא 13. בדקי מהו השלם ואז חשבי את האחוז המתאים."
+  },
+  {
+    "id": "u03-test-2",
+    "type": "multiple_choice",
+    "prompt": "50% מתוך 46 הם:",
+    "correctAnswer": "23",
+    "points": 15,
+    "explanation": "התשובה הנכונה היא 23. בדקי מהו השלם ואז חשבי את האחוז המתאים.",
+    "choices": [
+      "23",
+      "20",
+      "92",
+      "13"
+    ]
+  },
+  {
+    "id": "u03-test-3",
+    "type": "short_answer",
+    "prompt": "כמה הם 20% מתוך 75?",
+    "correctAnswer": "15",
+    "points": 15,
+    "explanation": "התשובה הנכונה היא 15. בדקי מהו השלם ואז חשבי את האחוז המתאים."
+  },
+  {
+    "id": "u03-test-4",
+    "type": "multiple_choice",
+    "prompt": "25% מתוך 100 הם:",
+    "correctAnswer": "25",
+    "points": 15,
+    "explanation": "התשובה הנכונה היא 25. בדקי מהו השלם ואז חשבי את האחוז המתאים.",
+    "choices": [
+      "25",
+      "50",
+      "10",
+      "75"
+    ]
+  },
+  {
+    "id": "u03-test-5",
+    "type": "short_answer",
+    "prompt": "כמה הם 75% מתוך 16?",
+    "correctAnswer": "12",
+    "points": 20,
+    "explanation": "התשובה הנכונה היא 12. בדקי מהו השלם ואז חשבי את האחוז המתאים."
+  },
+  {
+    "id": "u03-test-6",
+    "type": "multiple_choice",
+    "prompt": "30% מתוך 40 הם:",
+    "correctAnswer": "12",
+    "points": 20,
+    "explanation": "התשובה הנכונה היא 12. בדקי מהו השלם ואז חשבי את האחוז המתאים.",
+    "choices": [
+      "12",
+      "30",
+      "10",
+      "4"
+    ]
+  }
+]

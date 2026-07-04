@@ -1,0 +1,68 @@
+[
+  {
+    "id": "u05-ex-1",
+    "type": "multiple_choice",
+    "prompt": "אם 15 הם 50%, מהו השלם?",
+    "correctAnswer": "30",
+    "points": 10,
+    "explanation": "התשובה הנכונה היא 30. בדקי מהו השלם ואז חשבי את האחוז המתאים.",
+    "choices": [
+      "30",
+      "15",
+      "60",
+      "7.5"
+    ]
+  },
+  {
+    "id": "u05-ex-2",
+    "type": "short_answer",
+    "prompt": "אם 8 הם 25%, מהו השלם?",
+    "correctAnswer": "32",
+    "points": 10,
+    "explanation": "התשובה הנכונה היא 32. בדקי מהו השלם ואז חשבי את האחוז המתאים."
+  },
+  {
+    "id": "u05-ex-3",
+    "type": "short_answer",
+    "prompt": "אם 6 הם 10%, מהו השלם?",
+    "correctAnswer": "60",
+    "points": 10,
+    "explanation": "התשובה הנכונה היא 60. בדקי מהו השלם ואז חשבי את האחוז המתאים."
+  },
+  {
+    "id": "u05-ex-4",
+    "type": "multiple_choice",
+    "prompt": "אם 21 הם 75%, מהו השלם?",
+    "correctAnswer": "28",
+    "points": 10,
+    "explanation": "התשובה הנכונה היא 28. בדקי מהו השלם ואז חשבי את האחוז המתאים.",
+    "choices": [
+      "28",
+      "42",
+      "75",
+      "16"
+    ]
+  },
+  {
+    "id": "u05-ex-5",
+    "type": "short_answer",
+    "prompt": "אם 12 הם 50%, מהו השלם?",
+    "correctAnswer": "24",
+    "points": 10,
+    "explanation": "התשובה הנכונה היא 24. בדקי מהו השלם ואז חשבי את האחוז המתאים."
+  },
+  {
+    "id": "u05-ex-6",
+    "type": "multiple_choice",
+    "prompt": "אם 9 הם 25%, מהו השלם?",
+    "correctAnswer": "36",
+    "points": 10,
+    "explanation": "התשובה הנכונה היא 36. בדקי מהו השלם ואז חשבי את האחוז המתאים.",
+    "choices": [
+      "36",
+      "18",
+      "27",
+      "45"
+    ]
+  }
+]
