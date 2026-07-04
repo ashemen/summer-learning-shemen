@@ -1,0 +1,53 @@
+[
+  {
+    "id": "u08-test-1",
+    "type": "multiple_choice",
+    "prompt": "כמה שווה 8.60 - 3.45?",
+    "choices": ["5.15", "5.25", "4.15", "12.05"],
+    "correctAnswer": "5.15",
+    "points": 15,
+    "explanation": "8.60 פחות 3.45 שווה 5.15."
+  },
+  {
+    "id": "u08-test-2",
+    "type": "multiple_choice",
+    "prompt": "מהי הדרך הנכונה לכתוב 4.2 - 1.08?",
+    "choices": ["4.20 - 1.08", "42 - 108", "4.02 - 1.08", "4.2 - 108"],
+    "correctAnswer": "4.20 - 1.08",
+    "points": 15,
+    "explanation": "מוסיפים אפס כדי ליישר מאיות עם מאיות."
+  },
+  {
+    "id": "u08-test-3",
+    "type": "multiple_choice",
+    "prompt": "כמה עודף מקבלים מ-10.00 ש\"ח אם קונים מוצר ב-6.40 ש\"ח?",
+    "choices": ["3.60", "4.40", "16.40", "2.60"],
+    "correctAnswer": "3.60",
+    "points": 15,
+    "explanation": "10.00 - 6.40 = 3.60."
+  },
+  {
+    "id": "u08-test-4",
+    "type": "short_answer",
+    "prompt": "פתרי: 7.00 - 2.35",
+    "correctAnswer": "4.65",
+    "points": 15,
+    "explanation": "7.00 פחות 2.35 שווה 4.65."
+  },
+  {
+    "id": "u08-test-5",
+    "type": "short_answer",
+    "prompt": "פתרי: 4.20 - 1.08",
+    "correctAnswer": "3.12",
+    "points": 20,
+    "explanation": "4.20 פחות 1.08 שווה 3.12."
+  },
+  {
+    "id": "u08-test-6",
+    "type": "short_answer",
+    "prompt": "בקבוק מכיל 1.50 ליטר. שתו 0.65 ליטר. כמה נשאר?",
+    "correctAnswer": "0.85",
+    "points": 20,
+    "explanation": "1.50 - 0.65 = 0.85."
+  }
+]

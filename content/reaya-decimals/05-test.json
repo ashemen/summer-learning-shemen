@@ -1,0 +1,53 @@
+[
+  {
+    "id": "u05-test-1",
+    "type": "multiple_choice",
+    "prompt": "מה גדול יותר: 0.8 או 0.75?",
+    "choices": ["0.8", "0.75", "הם שווים", "אי אפשר לדעת"],
+    "correctAnswer": "0.8",
+    "points": 15,
+    "explanation": "0.8 שווה ל-0.80, ו-0.80 גדול מ-0.75."
+  },
+  {
+    "id": "u05-test-2",
+    "type": "multiple_choice",
+    "prompt": "איזה מספר הוא הגדול ביותר?",
+    "choices": ["2.1", "2.09", "2.19", "2.01"],
+    "correctAnswer": "2.19",
+    "points": 15,
+    "explanation": "2.19 גדול מ-2.10, 2.09 ו-2.01."
+  },
+  {
+    "id": "u05-test-3",
+    "type": "multiple_choice",
+    "prompt": "איזה משפט נכון?",
+    "choices": ["0.50 = 0.5", "0.50 < 0.5", "0.50 > 0.5", "0.50 = 5.0"],
+    "correctAnswer": "0.50 = 0.5",
+    "points": 15,
+    "explanation": "אפס בסוף החלק העשירוני לא משנה את הערך."
+  },
+  {
+    "id": "u05-test-4",
+    "type": "short_answer",
+    "prompt": "השלימי סימן מתאים: 2.09 __ 2.9",
+    "correctAnswer": "<",
+    "points": 15,
+    "explanation": "2.09 קטן מ-2.90."
+  },
+  {
+    "id": "u05-test-5",
+    "type": "short_answer",
+    "prompt": "כתבי את הקטן ביותר: 1.75, 1.57, 1.7",
+    "correctAnswer": "1.57",
+    "points": 20,
+    "explanation": "1.57 קטן מ-1.70 ומ-1.75."
+  },
+  {
+    "id": "u05-test-6",
+    "type": "short_answer",
+    "prompt": "כתבי מספר אחד שגדול מ-0.3 וקטן מ-0.5.",
+    "correctAnswer": "0.4",
+    "points": 20,
+    "explanation": "0.4 נמצא בין 0.3 לבין 0.5."
+  }
+]

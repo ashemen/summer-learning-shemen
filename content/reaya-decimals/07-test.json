@@ -1,0 +1,53 @@
+[
+  {
+    "id": "u07-test-1",
+    "type": "multiple_choice",
+    "prompt": "כמה שווה 2.50 + 1.75?",
+    "choices": ["4.25", "3.25", "4.75", "2.75"],
+    "correctAnswer": "4.25",
+    "points": 15,
+    "explanation": "2.50 ועוד 1.75 שווה 4.25."
+  },
+  {
+    "id": "u07-test-2",
+    "type": "multiple_choice",
+    "prompt": "איזה חיבור נכון?",
+    "choices": ["0.75 + 0.60 = 1.35", "0.75 + 0.60 = 0.135", "0.75 + 0.60 = 1.15", "0.75 + 0.60 = 0.81"],
+    "correctAnswer": "0.75 + 0.60 = 1.35",
+    "points": 15,
+    "explanation": "75 מאיות ועוד 60 מאיות הן 135 מאיות, כלומר 1.35."
+  },
+  {
+    "id": "u07-test-3",
+    "type": "multiple_choice",
+    "prompt": "מה צריך לעשות אם מחברים 4.5 + 2.35?",
+    "choices": ["לכתוב 4.50 + 2.35", "למחוק את הנקודות", "לכתוב 45 + 235", "לחבר רק את הספרות שאחרי הנקודה"],
+    "correctAnswer": "לכתוב 4.50 + 2.35",
+    "points": 15,
+    "explanation": "אפשר להוסיף אפס בסוף 4.5 כדי ליישר את המקומות."
+  },
+  {
+    "id": "u07-test-4",
+    "type": "short_answer",
+    "prompt": "פתרי: 5.08 + 2.12",
+    "correctAnswer": "7.20",
+    "points": 15,
+    "explanation": "5.08 ועוד 2.12 שווה 7.20."
+  },
+  {
+    "id": "u07-test-5",
+    "type": "short_answer",
+    "prompt": "פתרי: 4.5 + 2.35",
+    "correctAnswer": "6.85",
+    "points": 20,
+    "explanation": "4.50 ועוד 2.35 שווה 6.85."
+  },
+  {
+    "id": "u07-test-6",
+    "type": "short_answer",
+    "prompt": "מחברת עולה 4.50 ש\"ח ומדבקות עולות 2.75 ש\"ח. כמה הן עולות יחד?",
+    "correctAnswer": "7.25",
+    "points": 20,
+    "explanation": "4.50 + 2.75 = 7.25."
+  }
+]

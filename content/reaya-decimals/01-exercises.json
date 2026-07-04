@@ -1,0 +1,53 @@
+[
+  {
+    "id": "u01-ex-1",
+    "type": "multiple_choice",
+    "prompt": "איזה מספר עשירוני מתאים לשבר 3/10?",
+    "choices": ["0.3", "3.0", "0.03", "10.3"],
+    "correctAnswer": "0.3",
+    "points": 10,
+    "explanation": "שלוש עשיריות נכתבות כמספר עשירוני 0.3."
+  },
+  {
+    "id": "u01-ex-2",
+    "type": "short_answer",
+    "prompt": "כתבי כמספר עשירוני: 5/10",
+    "correctAnswer": "0.5",
+    "points": 10,
+    "explanation": "חמש עשיריות הן 0.5."
+  },
+  {
+    "id": "u01-ex-3",
+    "type": "multiple_choice",
+    "prompt": "מה המשמעות של 0.7?",
+    "choices": ["7 עשיריות", "7 שלמים", "7 מאיות", "עשירית אחת"],
+    "correctAnswer": "7 עשיריות",
+    "points": 10,
+    "explanation": "0.7 הוא שבע עשיריות, כלומר 7 חלקים מתוך 10."
+  },
+  {
+    "id": "u01-ex-4",
+    "type": "short_answer",
+    "prompt": "כמה שווה 0.1 + 0.1 + 0.1?",
+    "correctAnswer": "0.3",
+    "points": 10,
+    "explanation": "שלוש עשיריות יחד הן 0.3."
+  },
+  {
+    "id": "u01-ex-5",
+    "type": "multiple_choice",
+    "prompt": "איזה שבר מתאים למספר 0.8?",
+    "choices": ["8/10", "1/8", "8/100", "10/8"],
+    "correctAnswer": "8/10",
+    "points": 10,
+    "explanation": "0.8 הוא שמונה עשיריות, כלומר 8/10."
+  },
+  {
+    "id": "u01-ex-6",
+    "type": "short_answer",
+    "prompt": "כתבי כשבר: 0.2",
+    "correctAnswer": "2/10",
+    "points": 10,
+    "explanation": "0.2 הוא שתי עשיריות, כלומר 2/10."
+  }
+]

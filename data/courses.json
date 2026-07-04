@@ -4,14 +4,119 @@
     "title": "חשבון לקיץ",
     "subject": "מתמטיקה",
     "description": "חזרה קצרה ונעימה על שברים, חיבור וחשיבה מסודרת.",
-    "lessons": [
+    "units": [
       {
         "id": "fractions-intro",
         "title": "מבוא לשברים",
-        "contentFile": "content/sample-course/fractions.md"
+        "description": "היכרות עם מונה, מכנה וחלקים מתוך שלם.",
+        "lessonFile": "content/sample-course/fractions.md",
+        "exercisesFile": "content/sample-course/exercises.json",
+        "testsFile": "content/sample-course/tests.json"
       }
-    ],
-    "exercisesFile": "content/sample-course/exercises.json",
-    "testsFile": "content/sample-course/tests.json"
+    ]
+  },
+  {
+    "id": "reaya-decimals",
+    "title": "עשרוניים לרעיה",
+    "subject": "מתמטיקה",
+    "description": "קורס רב-יחידות ללימוד מספרים עשרוניים, ערך המקום, השוואה ופעולות חשבון.",
+    "units": [
+      {
+        "id": "decimals-01",
+        "title": "מהם מספרים עשרוניים",
+        "description": "היכרות ראשונה עם מספרים עשרוניים וחיבורם לשברים פשוטים.",
+        "lessonFile": "content/reaya-decimals/01-what-are-decimals.md",
+        "exercisesFile": "content/reaya-decimals/01-exercises.json",
+        "testsFile": "content/reaya-decimals/01-test.json"
+      },
+      {
+        "id": "decimals-02",
+        "title": "ערך המקום",
+        "description": "עשיריות, מאיות ואלפיות בתוך המספר העשרוני.",
+        "lessonFile": "content/reaya-decimals/02-place-value.md",
+        "exercisesFile": "content/reaya-decimals/02-exercises.json",
+        "testsFile": "content/reaya-decimals/02-test.json"
+      },
+      {
+        "id": "decimals-03",
+        "title": "קריאה וכתיבה של עשרוניים",
+        "description": "תרגול קריאה, כתיבה ופירוק של מספרים עשרוניים.",
+        "lessonFile": "content/reaya-decimals/03-reading-writing-decimals.md",
+        "exercisesFile": "content/reaya-decimals/03-exercises.json",
+        "testsFile": "content/reaya-decimals/03-test.json"
+      },
+      {
+        "id": "decimals-04",
+        "title": "כסף ומדידות",
+        "description": "שימוש במספרים עשרוניים במצבים מוכרים מהחיים.",
+        "lessonFile": "content/reaya-decimals/04-money-and-measurements.md",
+        "exercisesFile": "content/reaya-decimals/04-exercises.json",
+        "testsFile": "content/reaya-decimals/04-test.json"
+      },
+      {
+        "id": "decimals-05",
+        "title": "השוואת עשרוניים",
+        "description": "השוואה בין מספרים עשרוניים וסידור מהקטן לגדול.",
+        "lessonFile": "content/reaya-decimals/05-comparing-decimals.md",
+        "exercisesFile": "content/reaya-decimals/05-exercises.json",
+        "testsFile": "content/reaya-decimals/05-test.json"
+      },
+      {
+        "id": "decimals-06",
+        "title": "עשרוניים על ישר המספרים",
+        "description": "מיקום מספרים עשרוניים על ציר מספרים.",
+        "lessonFile": "content/reaya-decimals/06-number-line.md",
+        "exercisesFile": "content/reaya-decimals/06-exercises.json",
+        "testsFile": "content/reaya-decimals/06-test.json"
+      },
+      {
+        "id": "decimals-07",
+        "title": "חיבור עשרוניים",
+        "description": "חיבור מספרים עשרוניים בעזרת ערך המקום.",
+        "lessonFile": "content/reaya-decimals/07-adding-decimals.md",
+        "exercisesFile": "content/reaya-decimals/07-exercises.json",
+        "testsFile": "content/reaya-decimals/07-test.json"
+      },
+      {
+        "id": "decimals-08",
+        "title": "חיסור עשרוניים",
+        "description": "חיסור מספרים עשרוניים ויישור נקודה עשרונית.",
+        "lessonFile": "content/reaya-decimals/08-subtracting-decimals.md",
+        "exercisesFile": "content/reaya-decimals/08-exercises.json",
+        "testsFile": "content/reaya-decimals/08-test.json"
+      },
+      {
+        "id": "decimals-09",
+        "title": "כפל עשרוניים",
+        "description": "כפל במספרים עשרוניים והבנת גודל התוצאה.",
+        "lessonFile": "content/reaya-decimals/09-multiplying-decimals.md",
+        "exercisesFile": "content/reaya-decimals/09-exercises.json",
+        "testsFile": "content/reaya-decimals/09-test.json"
+      },
+      {
+        "id": "decimals-10",
+        "title": "חילוק עשרוניים",
+        "description": "חילוק עם מספרים עשרוניים בשלבים ברורים.",
+        "lessonFile": "content/reaya-decimals/10-dividing-decimals.md",
+        "exercisesFile": "content/reaya-decimals/10-exercises.json",
+        "testsFile": "content/reaya-decimals/10-test.json"
+      },
+      {
+        "id": "decimals-11",
+        "title": "בעיות מילוליות",
+        "description": "שימוש בעשרוניים לפתרון שאלות מילוליות.",
+        "lessonFile": "content/reaya-decimals/11-word-problems.md",
+        "exercisesFile": "content/reaya-decimals/11-exercises.json",
+        "testsFile": "content/reaya-decimals/11-test.json"
+      },
+      {
+        "id": "decimals-12",
+        "title": "חזרה והערכה",
+        "description": "חזרה מסכמת על כל נושאי הקורס.",
+        "lessonFile": "content/reaya-decimals/12-review-and-assessment.md",
+        "exercisesFile": "content/reaya-decimals/12-exercises.json",
+        "testsFile": "content/reaya-decimals/12-test.json"
+      }
+    ]
   }
 ]

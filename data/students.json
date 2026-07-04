@@ -3,12 +3,12 @@
     "id": "student-noa",
     "name": "נועה לוי",
     "grade": "ד׳",
-    "courseIds": ["math-summer"]
+    "courseIds": ["math-summer", "reaya-decimals"]
   },
   {
     "id": "student-michal",
     "name": "מיכל כהן",
     "grade": "ה׳",
-    "courseIds": ["math-summer"]
+    "courseIds": ["math-summer", "reaya-decimals"]
   }
 ]

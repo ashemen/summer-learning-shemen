@@ -1,0 +1,53 @@
+[
+  {
+    "id": "u12-ex-1",
+    "type": "multiple_choice",
+    "prompt": "מה גדול יותר?",
+    "choices": ["0.5", "0.05", "הם שווים", "אי אפשר לדעת"],
+    "correctAnswer": "0.5",
+    "points": 10,
+    "explanation": "0.5 הוא חמש עשיריות, ו-0.05 הוא חמש מאיות."
+  },
+  {
+    "id": "u12-ex-2",
+    "type": "short_answer",
+    "prompt": "כתבי במספרים: תשע עשיריות",
+    "correctAnswer": "0.9",
+    "points": 10,
+    "explanation": "תשע עשיריות הן 0.9."
+  },
+  {
+    "id": "u12-ex-3",
+    "type": "multiple_choice",
+    "prompt": "איזה משפט נכון?",
+    "choices": ["0.70 = 0.7", "0.70 < 0.7", "0.70 > 0.7", "0.70 = 7.0"],
+    "correctAnswer": "0.70 = 0.7",
+    "points": 10,
+    "explanation": "אפס בסוף החלק העשירוני לא משנה את הערך."
+  },
+  {
+    "id": "u12-ex-4",
+    "type": "short_answer",
+    "prompt": "פתרי: 3.45 + 2.30",
+    "correctAnswer": "5.75",
+    "points": 10,
+    "explanation": "3.45 + 2.30 = 5.75."
+  },
+  {
+    "id": "u12-ex-5",
+    "type": "multiple_choice",
+    "prompt": "מהי ספרת המאיות במספר 12.35?",
+    "choices": ["5", "3", "2", "1"],
+    "correctAnswer": "5",
+    "points": 10,
+    "explanation": "הספרה השנייה אחרי הנקודה היא ספרת המאיות."
+  },
+  {
+    "id": "u12-ex-6",
+    "type": "short_answer",
+    "prompt": "פתרי: 6.40 ÷ 2",
+    "correctAnswer": "3.20",
+    "points": 10,
+    "explanation": "6.40 לחלק ל-2 שווה 3.20."
+  }
+]

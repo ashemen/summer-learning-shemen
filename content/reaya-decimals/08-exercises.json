@@ -1,0 +1,53 @@
+[
+  {
+    "id": "u08-ex-1",
+    "type": "multiple_choice",
+    "prompt": "כמה שווה 0.9 - 0.4?",
+    "choices": ["0.5", "0.4", "0.13", "1.3"],
+    "correctAnswer": "0.5",
+    "points": 10,
+    "explanation": "תשע עשיריות פחות ארבע עשיריות הן חמש עשיריות."
+  },
+  {
+    "id": "u08-ex-2",
+    "type": "short_answer",
+    "prompt": "פתרי: 2.8 - 1.3",
+    "correctAnswer": "1.5",
+    "points": 10,
+    "explanation": "2.8 פחות 1.3 שווה 1.5."
+  },
+  {
+    "id": "u08-ex-3",
+    "type": "multiple_choice",
+    "prompt": "כמה שווה 4.75 - 1.25?",
+    "choices": ["3.50", "3.25", "4.50", "2.50"],
+    "correctAnswer": "3.50",
+    "points": 10,
+    "explanation": "4.75 פחות 1.25 שווה 3.50."
+  },
+  {
+    "id": "u08-ex-4",
+    "type": "short_answer",
+    "prompt": "פתרי: 6.00 - 2.70",
+    "correctAnswer": "3.30",
+    "points": 10,
+    "explanation": "6.00 פחות 2.70 שווה 3.30."
+  },
+  {
+    "id": "u08-ex-5",
+    "type": "multiple_choice",
+    "prompt": "מה נכון לעשות בתרגיל 7 - 2.35?",
+    "choices": ["לכתוב 7.00 - 2.35", "לכתוב 7 - 235", "למחוק את הנקודה", "לחבר במקום לחסר"],
+    "correctAnswer": "לכתוב 7.00 - 2.35",
+    "points": 10,
+    "explanation": "7 שווה ל-7.00, וזה עוזר ליישר את המקומות."
+  },
+  {
+    "id": "u08-ex-6",
+    "type": "short_answer",
+    "prompt": "לרעיה היו 12.50 ש\"ח והיא קנתה מדבקות ב-3.75 ש\"ח. כמה נשאר?",
+    "correctAnswer": "8.75",
+    "points": 10,
+    "explanation": "12.50 - 3.75 = 8.75."
+  }
+]

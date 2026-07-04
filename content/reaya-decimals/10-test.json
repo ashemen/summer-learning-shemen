@@ -1,0 +1,53 @@
+[
+  {
+    "id": "u10-test-1",
+    "type": "multiple_choice",
+    "prompt": "כמה שווה 4.50 ÷ 3?",
+    "choices": ["1.50", "1.30", "3.50", "0.50"],
+    "correctAnswer": "1.50",
+    "points": 15,
+    "explanation": "4.50 לחלק ל-3 שווה 1.50."
+  },
+  {
+    "id": "u10-test-2",
+    "type": "multiple_choice",
+    "prompt": "כמה שווה 7.20 ÷ 4?",
+    "choices": ["1.80", "1.20", "2.80", "3.20"],
+    "correctAnswer": "1.80",
+    "points": 15,
+    "explanation": "7.20 לחלק ל-4 שווה 1.80."
+  },
+  {
+    "id": "u10-test-3",
+    "type": "multiple_choice",
+    "prompt": "איזה תיאור מתאים לחילוק?",
+    "choices": ["חלוקה שווה", "חיבור של מספרים", "סידור מספרים", "הוספת אפסים בלבד"],
+    "correctAnswer": "חלוקה שווה",
+    "points": 15,
+    "explanation": "חילוק בודק כמה יש בכל חלק שווה."
+  },
+  {
+    "id": "u10-test-4",
+    "type": "short_answer",
+    "prompt": "פתרי: 6.40 ÷ 2",
+    "correctAnswer": "3.20",
+    "points": 15,
+    "explanation": "6.40 לחלק ל-2 שווה 3.20."
+  },
+  {
+    "id": "u10-test-5",
+    "type": "short_answer",
+    "prompt": "3 מחברות עולות יחד 13.50 ש\"ח. כמה עולה מחברת אחת?",
+    "correctAnswer": "4.50",
+    "points": 20,
+    "explanation": "13.50 ÷ 3 = 4.50."
+  },
+  {
+    "id": "u10-test-6",
+    "type": "short_answer",
+    "prompt": "פתרי: 4.80 ÷ 4",
+    "correctAnswer": "1.20",
+    "points": 20,
+    "explanation": "4.80 לחלק ל-4 שווה 1.20."
+  }
+]

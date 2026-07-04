@@ -17,6 +17,7 @@ const state = {
   adminTab: "students",
   selectedStudentId: "",
   selectedCourseId: "",
+  selectedUnitId: "",
   studentTab: "lesson",
   message: null,
 };
@@ -46,7 +47,7 @@ async function loadInitialData() {
   ]);
 
   state.students = readStorage(STORAGE.students, seedStudents);
-  state.courses = readStorage(STORAGE.courses, seedCourses);
+  state.courses = readStorage(STORAGE.courses, seedCourses).map(normalizeCourse);
   state.progress = readStorage(STORAGE.progress, seedProgress);
 
   const localAdmin = readStorage(STORAGE.admin, {});
@@ -105,6 +106,38 @@ function saveAll() {
   saveStorage(STORAGE.admin, state.adminSettings);
 }
 
+function normalizeCourse(course) {
+  const normalized = { ...course };
+  if (!Array.isArray(normalized.units)) {
+    normalized.units = [
+      {
+        id: course.lessons?.[0]?.id || `${course.id}-unit-1`,
+        title: course.lessons?.[0]?.title || "יחידה 1",
+        description: course.description || "",
+        lessonFile: course.lessons?.[0]?.contentFile || "",
+        exercisesFile: course.exercisesFile || "",
+        testsFile: course.testsFile || "",
+      },
+    ];
+  }
+  normalized.units = normalized.units.map((unit, index) => normalizeUnit(unit, index));
+  return normalized;
+}
+
+function normalizeUnit(unit, index = 0) {
+  return {
+    id: unit.id || `unit-${Date.now()}-${index}`,
+    title: unit.title || `יחידה ${index + 1}`,
+    description: unit.description || "",
+    lessonFile: unit.lessonFile || unit.contentFile || "",
+    lessonMarkdown: unit.lessonMarkdown || "",
+    exercisesFile: unit.exercisesFile || "",
+    exercises: Array.isArray(unit.exercises) ? unit.exercises : [],
+    testsFile: unit.testsFile || "",
+    tests: Array.isArray(unit.tests) ? unit.tests : [],
+  };
+}
+
 async function render() {
   const content = await renderScreen();
   app.innerHTML = `
@@ -145,13 +178,13 @@ function renderHome() {
   return `
     <section class="hero">
       <h1>לימודי קיץ</h1>
-      <p>מרחב למידה עברי, פשוט ונעים, עם שיעורים, תרגול, מבחנים וציונים.</p>
+      <p>מרחב למידה עברי, פשוט ונעים, עם שיעורים, משחקים, מבחנים וציונים.</p>
     </section>
     <section class="entry-grid">
       <article class="entry-card student">
         <div>
           <h2>אזור ליצנית קיץ</h2>
-          <p class="muted">כניסה לשיעורים, תרגול, מבחנים וסקירת ציונים.</p>
+          <p class="muted">כניסה לשיעורים, משחקים, מבחנים וסקירת ציונים.</p>
           <button class="card-button" data-action="go" data-screen="studentSelect">כניסה לליצנית קיץ</button>
         </div>
         <div class="entry-icon sketch-icon" aria-hidden="true">${renderClownIcon()}</div>
@@ -159,7 +192,7 @@ function renderHome() {
       <article class="entry-card admin">
         <div>
           <h2>איזור אבא</h2>
-          <p class="muted">ניהול תלמידות, קורסים, תוכן וציונים.</p>
+          <p class="muted">ניהול תלמידות, קורסים, יחידות, תוכן וציונים.</p>
           <button class="card-button" data-action="admin-entry">כניסה לאבא</button>
         </div>
         <div class="entry-icon sketch-icon" aria-hidden="true">${renderDadIcon()}</div>
@@ -167,7 +200,7 @@ function renderHome() {
     </section>
     <section class="panel soft">
       <h2>איך התוכן עובד?</h2>
-      <p>הסברים נשמרים כקבצי Markdown, ותרגילים/מבחנים נשמרים כקבצי JSON שהאפליקציה יודעת לקרוא ולבדוק.</p>
+      <p>כל קורס מחולק ליחידות. בכל יחידה אפשר לשלב הסבר, משחק, מבחן או כל שילוב ביניהם.</p>
     </section>
   `;
 }
@@ -226,7 +259,7 @@ async function renderStudentCourse() {
       <div class="panel-header">
         <div>
           <h1>שלום ${escapeHtml(student.name)}</h1>
-          <p class="muted">בחרי קורס והמשיכי ללמוד בקצב שלך.</p>
+          <p class="muted">בחרי קורס, ואז יחידה מתוך הקורס.</p>
         </div>
         <button class="ghost" data-action="go" data-screen="studentSelect">החלפת ליצנית קיץ</button>
       </div>
@@ -237,18 +270,22 @@ async function renderStudentCourse() {
 }
 
 async function renderCourseWorkspace(student, course) {
+  const units = course.units || [];
+  const unit = getSelectedUnit(course);
+  if (!unit) return `<section class="panel"><div class="empty">לקורס הזה עדיין אין יחידות.</div></section>`;
+
   const tabs = [
     ["lesson", "הסבר"],
-    ["exercise", "תרגול"],
+    ["game", "משחק"],
     ["test", "מבחן"],
     ["scores", "ציונים"],
   ];
 
   let body = "";
-  if (state.studentTab === "lesson") body = await renderLesson(course);
-  if (state.studentTab === "exercise") body = await renderQuestionSet(student, course, "exercises");
-  if (state.studentTab === "test") body = await renderQuestionSet(student, course, "tests");
-  if (state.studentTab === "scores") body = renderScoreOverview(student, course);
+  if (state.studentTab === "lesson") body = await renderLesson(unit);
+  if (state.studentTab === "game") body = await renderLearningGame(student, course, unit);
+  if (state.studentTab === "test") body = await renderQuestionSet(student, course, unit, "tests");
+  if (state.studentTab === "scores") body = renderScoreOverview(student, course, unit);
 
   return `
     <section class="panel">
@@ -259,6 +296,22 @@ async function renderCourseWorkspace(student, course) {
         </div>
         <span class="score-pill">${escapeHtml(course.subject || "קורס")}</span>
       </div>
+      <div class="unit-nav">
+        ${units
+          .map(
+            (item, index) => `
+              <button class="unit-button ${item.id === unit.id ? "active" : ""}" data-action="select-unit" data-id="${item.id}">
+                <span>${index + 1}</span>
+                ${escapeHtml(item.title)}
+              </button>
+            `
+          )
+          .join("")}
+      </div>
+      <article class="panel soft unit-summary">
+        <h3>${escapeHtml(unit.title)}</h3>
+        <p>${escapeHtml(unit.description || "יחידה ללא תיאור.")}</p>
+      </article>
       <div class="tabs">
         ${tabs
           .map(
@@ -275,37 +328,74 @@ async function renderCourseWorkspace(student, course) {
   `;
 }
 
-async function renderLesson(course) {
-  const lesson = course.lessons?.[0];
-  if (!lesson?.contentFile) return `<div class="empty">עדיין לא נוסף הסבר לקורס הזה.</div>`;
+async function renderLesson(unit) {
+  if (unit.lessonMarkdown) return `<article class="lesson">${markdownToHtml(unit.lessonMarkdown)}</article>`;
+  if (!unit.lessonFile) return `<div class="empty">ביחידה הזאת עדיין אין הסבר.</div>`;
   try {
-    const markdown = await fetchText(lesson.contentFile);
+    const markdown = await fetchText(unit.lessonFile);
     return `<article class="lesson">${markdownToHtml(markdown)}</article>`;
   } catch {
-    return `<div class="message error">לא ניתן לטעון את קובץ ההסבר: ${escapeHtml(lesson.contentFile)}</div>`;
+    return `<div class="message error">לא ניתן לטעון את קובץ ההסבר: ${escapeHtml(unit.lessonFile)}</div>`;
   }
 }
 
-async function renderQuestionSet(student, course, kind) {
-  const file = kind === "exercises" ? course.exercisesFile : course.testsFile;
-  const label = kind === "exercises" ? "תרגול" : "מבחן";
-  let questions = [];
-  try {
-    questions = file ? await fetchJson(file, []) : [];
-  } catch {
-    questions = [];
-  }
+async function loadQuestions(unit, kind) {
+  const inline = kind === "exercises" ? unit.exercises : unit.tests;
+  const file = kind === "exercises" ? unit.exercisesFile : unit.testsFile;
+  if (Array.isArray(inline) && inline.length) return inline;
+  if (!file) return [];
+  return await fetchJson(file, []);
+}
 
-  if (!questions.length) return `<div class="empty">עדיין אין ${label} לקורס הזה.</div>`;
+async function renderQuestionSet(student, course, unit, kind) {
+  const label = kind === "exercises" ? "משחק" : "מבחן";
+  const questions = await loadQuestions(unit, kind);
+  if (!questions.length) return `<div class="empty">ביחידה הזאת אין ${label}.</div>`;
 
-  const attempt = getAttempt(student.id, course.id, kind);
+  const attempt = getAttempt(student.id, course.id, unit.id, kind);
   const currentScore = attempt ? getCurrentScore(attempt) : null;
 
   return `
     ${attempt ? `<div class="message success">הוגש ${label}. הציון הנוכחי: ${currentScore}/${attempt.total}</div>` : ""}
-    <form id="submit-${kind}" data-course-id="${course.id}" class="grid">
+    <form data-form="submit-questions" data-kind="${kind}" data-course-id="${course.id}" data-unit-id="${unit.id}" class="grid">
       ${questions.map((question, index) => renderQuestion(question, index + 1, attempt)).join("")}
       <button class="primary" type="submit">${attempt ? "הגשה מחדש" : `הגשת ${label}`}</button>
+    </form>
+  `;
+}
+
+async function renderLearningGame(student, course, unit) {
+  const questions = await loadQuestions(unit, "exercises");
+  if (!questions.length) return `<div class="empty">ביחידה הזאת עדיין אין משחק.</div>`;
+
+  const attempt = getAttempt(student.id, course.id, unit.id, "exercises");
+  const solvedCount = attempt ? countCorrectAnswers(questions, attempt.answers) : 0;
+  const allSolved = solvedCount === questions.length;
+  const codeTiles = questions
+    .map((question, index) => {
+      const solved = attempt && isCorrect(attempt.answers?.[question.id], question.correctAnswer);
+      return `<span class="code-tile ${solved ? "unlocked" : ""}">${solved ? escapeHtml(getGameReward(question, index)) : "?"}</span>`;
+    })
+    .join("");
+
+  return `
+    <article class="game-hero">
+      <div>
+        <h3>משחק פתיחת הקוד</h3>
+        <p>עני על המשימות כדי לגלות את חלקי הקוד של היחידה. אפשר לנסות שוב עד שהכול נפתח.</p>
+      </div>
+      <div class="game-code" aria-label="קוד המשחק">${codeTiles}</div>
+    </article>
+    ${
+      attempt
+        ? `<div class="message ${allSolved ? "success" : "warning"}">
+            ${allSolved ? "כל הכבוד! כל חלקי הקוד נפתחו." : `פתחת ${solvedCount}/${questions.length} חלקי קוד. אפשר לתקן ולנסות שוב.`}
+          </div>`
+        : ""
+    }
+    <form data-form="submit-questions" data-kind="exercises" data-course-id="${course.id}" data-unit-id="${unit.id}" class="grid game-board">
+      ${questions.map((question, index) => renderGameChallenge(question, index + 1, attempt)).join("")}
+      <button class="primary" type="submit">${attempt ? "בדיקה מחדש" : "בדיקת הקוד"}</button>
     </form>
   `;
 }
@@ -319,24 +409,6 @@ function renderQuestion(question, number, attempt) {
       </div>`
     : "";
 
-  const input =
-    question.type === "multiple_choice"
-      ? `<div class="choices">
-          ${(question.choices || [])
-            .map(
-              (choice) => `
-                <label class="choice">
-                  <input type="radio" name="${question.id}" value="${escapeAttr(choice)}" ${savedAnswer === choice ? "checked" : ""} />
-                  <span>${escapeHtml(choice)}</span>
-                </label>
-              `
-            )
-            .join("")}
-        </div>`
-      : `<label>תשובה
-          <input name="${question.id}" value="${escapeAttr(savedAnswer)}" autocomplete="off" />
-        </label>`;
-
   return `
     <article class="item">
       <div class="item-row">
@@ -344,27 +416,73 @@ function renderQuestion(question, number, attempt) {
         <span class="score-pill">${Number(question.points) || 0} נק׳</span>
       </div>
       <p>${escapeHtml(question.prompt)}</p>
-      ${input}
+      ${renderAnswerInput(question, savedAnswer)}
       ${feedback}
     </article>
   `;
 }
 
-function renderScoreOverview(student, course) {
-  const ex = getAttempt(student.id, course.id, "exercises");
-  const test = getAttempt(student.id, course.id, "tests");
+function renderGameChallenge(question, number, attempt) {
+  const savedAnswer = attempt?.answers?.[question.id] || "";
+  const solved = attempt && isCorrect(savedAnswer, question.correctAnswer);
+  const feedback = attempt
+    ? `<div class="message ${solved ? "success" : "warning"}">
+        ${
+          solved
+            ? `נפתח חלק קוד: <strong>${escapeHtml(getGameReward(question, number - 1))}</strong>`
+            : "החלק הזה עדיין נעול. נסי שוב."
+        }
+        ${question.explanation ? `<span>${escapeHtml(question.explanation)}</span>` : ""}
+      </div>`
+    : "";
+
+  return `
+    <article class="item game-card ${solved ? "solved" : ""}">
+      <div class="item-row">
+        <strong>משימה ${number}</strong>
+        <span class="score-pill">${solved ? "נפתח" : "נעול"}</span>
+      </div>
+      <p>${escapeHtml(question.prompt)}</p>
+      ${renderAnswerInput(question, savedAnswer)}
+      ${feedback}
+    </article>
+  `;
+}
+
+function renderAnswerInput(question, savedAnswer) {
+  if (question.type === "multiple_choice") {
+    return `<div class="choices">
+      ${(question.choices || [])
+        .map(
+          (choice) => `
+            <label class="choice">
+              <input type="radio" name="${question.id}" value="${escapeAttr(choice)}" ${savedAnswer === choice ? "checked" : ""} />
+              <span>${escapeHtml(choice)}</span>
+            </label>
+          `
+        )
+        .join("")}
+    </div>`;
+  }
+
+  return `<label>תשובה
+    <input name="${question.id}" value="${escapeAttr(savedAnswer)}" autocomplete="off" />
+  </label>`;
+}
+
+function renderScoreOverview(student, course, unit) {
+  const ex = getAttempt(student.id, course.id, unit.id, "exercises");
+  const test = getAttempt(student.id, course.id, unit.id, "tests");
   return `
     <div class="grid two">
-      ${renderScoreCard("תרגול", ex)}
+      ${renderScoreCard("משחק", ex)}
       ${renderScoreCard("מבחן", test)}
     </div>
   `;
 }
 
 function renderScoreCard(label, attempt) {
-  if (!attempt) {
-    return `<article class="item"><h3>${label}</h3><p class="muted">עדיין לא הוגש.</p></article>`;
-  }
+  if (!attempt) return `<article class="item"><h3>${label}</h3><p class="muted">עדיין לא הוגש.</p></article>`;
   const score = getCurrentScore(attempt);
   return `
     <article class="item">
@@ -412,7 +530,7 @@ function renderAdminAuth() {
 function renderAdmin() {
   const tabs = [
     ["students", "תלמידות"],
-    ["courses", "קורסים"],
+    ["courses", "קורסים ויחידות"],
     ["scores", "ציונים"],
     ["tools", "כלים"],
   ];
@@ -422,7 +540,7 @@ function renderAdmin() {
       <div class="panel-header">
         <div>
           <h1>לוח אבא</h1>
-          <p class="muted">ניהול תלמידות, קורסים, תוכן וציונים.</p>
+          <p class="muted">ניהול תלמידות, קורסים, יחידות, תוכן וציונים.</p>
         </div>
         <button class="secondary" data-action="admin-tab" data-tab="password">החלפת סיסמה</button>
       </div>
@@ -504,7 +622,7 @@ function renderAssignmentChecks(student) {
           <input type="checkbox" data-action="toggle-assignment" data-student-id="${student.id}" data-course-id="${course.id}" ${
         student.courseIds?.includes(course.id) ? "checked" : ""
       } />
-          <span>${escapeHtml(course.title)}</span>
+          <span>${escapeHtml(course.title)} (${course.units?.length || 0} יחידות)</span>
         </label>
       `
     )
@@ -513,66 +631,143 @@ function renderAssignmentChecks(student) {
 
 function renderAdminCourses() {
   return `
-    <section class="grid two">
+    <section class="grid">
       <article class="panel mint">
         <h2>הוספת קורס</h2>
-        <form id="add-course" class="grid">
+        <form id="add-course" class="form-grid">
           <label>שם קורס
             <input name="title" required />
           </label>
           <label>תחום
-            <input name="subject" placeholder="לדוגמה: עברית" />
+            <input name="subject" placeholder="לדוגמה: מתמטיקה" />
           </label>
           <label>תיאור
-            <textarea name="description" rows="3"></textarea>
-          </label>
-          <label>קובץ הסבר Markdown
-            <input name="lessonFile" placeholder="content/my-course/lesson.md" />
-          </label>
-          <label>קובץ תרגול JSON
-            <input name="exercisesFile" placeholder="content/my-course/exercises.json" />
-          </label>
-          <label>קובץ מבחן JSON
-            <input name="testsFile" placeholder="content/my-course/tests.json" />
+            <textarea name="description" rows="2"></textarea>
           </label>
           <button class="primary" type="submit">הוספת קורס</button>
         </form>
       </article>
       <article class="panel">
-        <h2>קורסים קיימים</h2>
+        <h2>קורסים ויחידות</h2>
         <div class="list">
-          ${
-            state.courses
-              .map(
-                (course) => `
-                  <div class="item">
-                    <div class="item-row">
-                      <div>
-                        <strong>${escapeHtml(course.title)}</strong>
-                        <div class="muted">${escapeHtml(course.subject || "")}</div>
-                      </div>
-                      <button class="danger" data-action="delete-course" data-id="${course.id}">מחיקה</button>
-                    </div>
-                    <p>${escapeHtml(course.description || "ללא תיאור")}</p>
-                    <small class="muted">הסבר: ${escapeHtml(course.lessons?.[0]?.contentFile || "לא הוגדר")}</small>
-                  </div>
-                `
-              )
-              .join("") || `<div class="empty">עדיין אין קורסים.</div>`
-          }
+          ${state.courses.map((course) => renderCourseEditor(course)).join("") || `<div class="empty">עדיין אין קורסים.</div>`}
         </div>
       </article>
     </section>
   `;
 }
 
+function renderCourseEditor(course) {
+  return `
+    <div class="item course-editor">
+      <div class="item-row">
+        <div>
+          <h3>${escapeHtml(course.title)}</h3>
+          <p class="muted">${escapeHtml(course.subject || "ללא תחום")} · ${course.units?.length || 0} יחידות</p>
+        </div>
+        <button class="danger" data-action="delete-course" data-id="${course.id}">מחיקת קורס</button>
+      </div>
+      <p>${escapeHtml(course.description || "ללא תיאור")}</p>
+      <details>
+        <summary>הוספת יחידה חדשה</summary>
+        <form data-form="add-unit" data-course-id="${course.id}" class="grid form-slab">
+          <label>שם יחידה
+            <input name="title" required placeholder="לדוגמה: ערך המקום בעשרוניים" />
+          </label>
+          <label>תיאור קצר
+            <textarea name="description" rows="2"></textarea>
+          </label>
+          <label>קובץ הסבר Markdown
+            <input name="lessonFile" placeholder="content/course/unit.md" />
+          </label>
+          <label>קובץ משחק JSON
+            <input name="exercisesFile" placeholder="content/course/exercises.json" />
+          </label>
+          <label>קובץ מבחן JSON
+            <input name="testsFile" placeholder="content/course/test.json" />
+          </label>
+          <button class="primary" type="submit">הוספת יחידה</button>
+        </form>
+      </details>
+      <details>
+        <summary>ייבוא יחידה מ-Codex או מקובץ JSON</summary>
+        <form data-form="import-unit" data-course-id="${course.id}" class="grid form-slab">
+          <label>קובץ יחידה JSON
+            <input type="file" name="unitFile" accept="application/json,.json" />
+          </label>
+          <label>או הדבקת JSON של יחידה
+            <textarea class="textarea-code" name="unitJson" rows="8" placeholder='{"title":"יחידה חדשה","lessonMarkdown":"# הסבר","exercises":[],"tests":[]}'></textarea>
+          </label>
+          <button class="secondary" type="submit">ייבוא יחידה לקורס</button>
+        </form>
+      </details>
+      <div class="unit-list">
+        ${(course.units || []).map((unit, index) => renderUnitEditor(course, unit, index)).join("") || `<div class="empty">לקורס הזה עדיין אין יחידות.</div>`}
+      </div>
+    </div>
+  `;
+}
+
+function renderUnitEditor(course, unit, index) {
+  return `
+    <details class="unit-card">
+      <summary>
+        <span>${index + 1}. ${escapeHtml(unit.title)}</span>
+        <small>${unitHasContentLabel(unit)}</small>
+      </summary>
+      <form data-form="update-unit" data-course-id="${course.id}" data-unit-id="${unit.id}" class="grid form-slab">
+        <label>שם יחידה
+          <input name="title" value="${escapeAttr(unit.title)}" required />
+        </label>
+        <label>תיאור
+          <textarea name="description" rows="2">${escapeHtml(unit.description || "")}</textarea>
+        </label>
+        <label>קובץ הסבר Markdown
+          <input name="lessonFile" value="${escapeAttr(unit.lessonFile || "")}" />
+        </label>
+        <label>העלאת/הדבקת הסבר Markdown
+          <input type="file" name="lessonUpload" accept=".md,text/markdown,text/plain" />
+          <textarea class="textarea-code" name="lessonMarkdown" rows="5">${escapeHtml(unit.lessonMarkdown || "")}</textarea>
+        </label>
+        <label>קובץ משחק JSON
+          <input name="exercisesFile" value="${escapeAttr(unit.exercisesFile || "")}" />
+        </label>
+        <label>העלאת/הדבקת משחק JSON
+          <input type="file" name="exercisesUpload" accept="application/json,.json" />
+          <textarea class="textarea-code" name="exercisesJson" rows="5">${escapeHtml(unit.exercises?.length ? JSON.stringify(unit.exercises, null, 2) : "")}</textarea>
+        </label>
+        <label>קובץ מבחן JSON
+          <input name="testsFile" value="${escapeAttr(unit.testsFile || "")}" />
+        </label>
+        <label>העלאת/הדבקת מבחן JSON
+          <input type="file" name="testsUpload" accept="application/json,.json" />
+          <textarea class="textarea-code" name="testsJson" rows="5">${escapeHtml(unit.tests?.length ? JSON.stringify(unit.tests, null, 2) : "")}</textarea>
+        </label>
+        <div class="row-actions">
+          <button class="secondary" type="submit">שמירת יחידה</button>
+          <button class="danger" type="button" data-action="delete-unit" data-course-id="${course.id}" data-unit-id="${unit.id}">מחיקת יחידה</button>
+        </div>
+      </form>
+    </details>
+  `;
+}
+
+function unitHasContentLabel(unit) {
+  const parts = [];
+  if (unit.lessonMarkdown || unit.lessonFile) parts.push("הסבר");
+  if (unit.exercises?.length || unit.exercisesFile) parts.push("משחק");
+  if (unit.tests?.length || unit.testsFile) parts.push("מבחן");
+  return parts.length ? parts.join(" · ") : "ללא תוכן";
+}
+
 function renderAdminScores() {
   const rows = [];
   for (const student of state.students) {
     for (const course of state.courses.filter((item) => student.courseIds?.includes(item.id))) {
-      for (const kind of ["exercises", "tests"]) {
-        const attempt = getAttempt(student.id, course.id, kind);
-        rows.push({ student, course, kind, attempt });
+      for (const unit of course.units || []) {
+        for (const kind of ["exercises", "tests"]) {
+          rows.push({ student, course, unit, kind, attempt: getAttempt(student.id, course.id, unit.id, kind) });
+        }
       }
     }
   }
@@ -584,6 +779,7 @@ function renderAdminScores() {
           <tr>
             <th>תלמידה</th>
             <th>קורס</th>
+            <th>יחידה</th>
             <th>סוג</th>
             <th>ציון</th>
             <th>עדכון ידני</th>
@@ -593,16 +789,17 @@ function renderAdminScores() {
           ${
             rows
               .map(
-                ({ student, course, kind, attempt }) => `
+                ({ student, course, unit, kind, attempt }) => `
                   <tr>
                     <td>${escapeHtml(student.name)}</td>
                     <td>${escapeHtml(course.title)}</td>
-                    <td>${kind === "exercises" ? "תרגול" : "מבחן"}</td>
+                    <td>${escapeHtml(unit.title)}</td>
+                    <td>${kind === "exercises" ? "משחק" : "מבחן"}</td>
                     <td>${attempt ? `${getCurrentScore(attempt)}/${attempt.total}` : "טרם הוגש"}</td>
                     <td>
                       ${
                         attempt
-                          ? `<form data-form="override-score" data-student-id="${student.id}" data-course-id="${course.id}" data-kind="${kind}" class="grid">
+                          ? `<form data-form="override-score" data-student-id="${student.id}" data-course-id="${course.id}" data-unit-id="${unit.id}" data-kind="${kind}" class="grid">
                               <label>ציון חדש
                                 <input name="score" type="number" min="0" max="${attempt.total}" value="${getCurrentScore(attempt)}" />
                               </label>
@@ -617,7 +814,7 @@ function renderAdminScores() {
                   </tr>
                 `
               )
-              .join("") || `<tr><td colspan="5">אין נתונים להצגה.</td></tr>`
+              .join("") || `<tr><td colspan="6">אין נתונים להצגה.</td></tr>`
           }
         </tbody>
       </table>
@@ -644,9 +841,9 @@ function renderAdminTools() {
         </form>
       </article>
       <article class="panel">
-        <h2>פורמט תוכן AI</h2>
-        <p>הסברים נוצרים כ-Markdown. תרגילים ומבחנים נוצרים כ-JSON במבנה קבוע.</p>
-        <pre><code>${escapeHtml(JSON.stringify(sampleQuestionFormat(), null, 2))}</code></pre>
+        <h2>פורמט יחידה ל-Codex</h2>
+        <p>Codex יכול ליצור JSON של יחידה ולהדביק אותו באיזור "ייבוא יחידה".</p>
+        <pre><code>${escapeHtml(JSON.stringify(sampleUnitFormat(), null, 2))}</code></pre>
       </article>
     </section>
   `;
@@ -694,12 +891,19 @@ async function handleClick(event) {
   if (action === "select-student") {
     state.selectedStudentId = target.dataset.id;
     state.selectedCourseId = "";
+    state.selectedUnitId = "";
     state.studentTab = "lesson";
     state.screen = "studentCourse";
     await render();
   }
   if (action === "select-course") {
     state.selectedCourseId = target.dataset.id;
+    state.selectedUnitId = "";
+    state.studentTab = "lesson";
+    await render();
+  }
+  if (action === "select-unit") {
+    state.selectedUnitId = target.dataset.id;
     state.studentTab = "lesson";
     await render();
   }
@@ -719,6 +923,10 @@ async function handleClick(event) {
     deleteCourse(target.dataset.id);
     await render();
   }
+  if (action === "delete-unit") {
+    deleteUnit(target.dataset.courseId, target.dataset.unitId);
+    await render();
+  }
   if (action === "export-backup") {
     exportBackup();
   }
@@ -734,8 +942,10 @@ async function handleSubmit(event) {
   if (form.id === "change-password") return changePassword(data);
   if (form.id === "add-student") return addStudent(data);
   if (form.id === "add-course") return addCourse(data);
-  if (form.id === "submit-exercises") return submitQuestions(form, "exercises");
-  if (form.id === "submit-tests") return submitQuestions(form, "tests");
+  if (form.dataset.form === "add-unit") return addUnit(form, data);
+  if (form.dataset.form === "update-unit") return updateUnit(form, data);
+  if (form.dataset.form === "import-unit") return importUnit(form, data);
+  if (form.dataset.form === "submit-questions") return submitQuestions(form);
   if (form.dataset.form === "override-score") return overrideScore(form, data);
   if (form.id === "import-backup") return importBackup(data);
 }
@@ -839,19 +1049,17 @@ function deleteStudent(id) {
 }
 
 async function addCourse(data) {
-  const title = String(data.get("title") || "").trim();
-  const lessonFile = String(data.get("lessonFile") || "").trim();
-  state.courses.push({
-    id: `course-${Date.now()}`,
-    title,
-    subject: String(data.get("subject") || "").trim(),
-    description: String(data.get("description") || "").trim(),
-    lessons: lessonFile ? [{ id: `lesson-${Date.now()}`, title: "הסבר", contentFile: lessonFile }] : [],
-    exercisesFile: String(data.get("exercisesFile") || "").trim(),
-    testsFile: String(data.get("testsFile") || "").trim(),
-  });
+  state.courses.push(
+    normalizeCourse({
+      id: `course-${Date.now()}`,
+      title: String(data.get("title") || "").trim(),
+      subject: String(data.get("subject") || "").trim(),
+      description: String(data.get("description") || "").trim(),
+      units: [],
+    })
+  );
   saveStorage(STORAGE.courses, state.courses);
-  return show("success", "הקורס נוסף.");
+  return show("success", "הקורס נוסף. עכשיו אפשר להוסיף לו יחידות.");
 }
 
 function deleteCourse(id) {
@@ -870,38 +1078,168 @@ function deleteCourse(id) {
   state.message = { type: "success", text: "הקורס נמחק." };
 }
 
-async function submitQuestions(form, kind) {
-  const student = getSelectedStudent();
-  const course = state.courses.find((item) => item.id === form.dataset.courseId);
-  if (!student || !course) return;
+async function addUnit(form, data) {
+  const course = getCourse(form.dataset.courseId);
+  if (!course) return show("error", "הקורס לא נמצא.");
+  course.units = course.units || [];
+  course.units.push(
+    normalizeUnit({
+      id: slugify(String(data.get("title") || "")) || `unit-${Date.now()}`,
+      title: String(data.get("title") || "").trim(),
+      description: String(data.get("description") || "").trim(),
+      lessonFile: String(data.get("lessonFile") || "").trim(),
+      exercisesFile: String(data.get("exercisesFile") || "").trim(),
+      testsFile: String(data.get("testsFile") || "").trim(),
+    }, course.units.length)
+  );
+  saveStorage(STORAGE.courses, state.courses);
+  return show("success", "היחידה נוספה לקורס.");
+}
 
-  const file = kind === "exercises" ? course.exercisesFile : course.testsFile;
-  const questions = await fetchJson(file, []);
+async function updateUnit(form, data) {
+  const course = getCourse(form.dataset.courseId);
+  const unit = getUnit(course, form.dataset.unitId);
+  if (!course || !unit) return show("error", "היחידה לא נמצאה.");
+
+  const lessonUpload = data.get("lessonUpload");
+  const exercisesUpload = data.get("exercisesUpload");
+  const testsUpload = data.get("testsUpload");
+
+  unit.title = String(data.get("title") || "").trim();
+  unit.description = String(data.get("description") || "").trim();
+  unit.lessonFile = String(data.get("lessonFile") || "").trim();
+  unit.exercisesFile = String(data.get("exercisesFile") || "").trim();
+  unit.testsFile = String(data.get("testsFile") || "").trim();
+  unit.lessonMarkdown = lessonUpload?.size ? await lessonUpload.text() : String(data.get("lessonMarkdown") || "").trim();
+  unit.exercises = await readQuestionArray(exercisesUpload, data.get("exercisesJson"), "משחק");
+  unit.tests = await readQuestionArray(testsUpload, data.get("testsJson"), "מבחן");
+
+  saveStorage(STORAGE.courses, state.courses);
+  return show("success", "היחידה נשמרה.");
+}
+
+async function importUnit(form, data) {
+  const course = getCourse(form.dataset.courseId);
+  if (!course) return show("error", "הקורס לא נמצא.");
+  const file = data.get("unitFile");
+  const pasted = String(data.get("unitJson") || "").trim();
+  if ((!file || !file.size) && !pasted) return show("error", "לא נבחר קובץ ולא הודבק JSON.");
+
+  try {
+    const payload = JSON.parse(file && file.size ? await file.text() : pasted);
+    const unit = normalizeImportedUnit(payload);
+    const existingIndex = (course.units || []).findIndex((item) => item.id === unit.id);
+    course.units = course.units || [];
+    if (existingIndex >= 0) {
+      course.units[existingIndex] = unit;
+    } else {
+      course.units.push(unit);
+    }
+    saveStorage(STORAGE.courses, state.courses);
+    return show("success", `היחידה "${unit.title}" יובאה לקורס.`);
+  } catch (error) {
+    return show("error", `JSON היחידה אינו תקין: ${error.message}`);
+  }
+}
+
+function normalizeImportedUnit(payload) {
+  const raw = payload.unit || payload;
+  const unit = normalizeUnit(
+    {
+      id: raw.id || slugify(raw.title || "") || `unit-${Date.now()}`,
+      title: raw.title,
+      description: raw.description,
+      lessonFile: raw.lessonFile,
+      lessonMarkdown: raw.lessonMarkdown || raw.markdown || raw.explanationMarkdown,
+      exercisesFile: raw.exercisesFile,
+      exercises: raw.exercises || [],
+      testsFile: raw.testsFile,
+      tests: raw.tests || [],
+    },
+    0
+  );
+  if (!unit.title) throw new Error("חסר שם יחידה");
+  validateQuestions(unit.exercises, "משחק");
+  validateQuestions(unit.tests, "מבחן");
+  return unit;
+}
+
+async function readQuestionArray(file, textValue, label) {
+  const text = file?.size ? await file.text() : String(textValue || "").trim();
+  if (!text) return [];
+  const questions = JSON.parse(text);
+  validateQuestions(questions, label);
+  return questions;
+}
+
+function validateQuestions(questions, label) {
+  if (!Array.isArray(questions)) throw new Error(`${label} חייב להיות מערך שאלות`);
+  for (const question of questions) {
+    if (!question.id || !question.type || !question.prompt || question.correctAnswer === undefined) {
+      throw new Error(`שאלה ב${label} חסרה שדות חובה`);
+    }
+  }
+}
+
+function deleteUnit(courseId, unitId) {
+  const course = getCourse(courseId);
+  const unit = getUnit(course, unitId);
+  if (!course || !unit || !confirm(`למחוק את היחידה ${unit.title}?`)) return;
+  course.units = (course.units || []).filter((item) => item.id !== unitId);
+  for (const studentAttempts of Object.values(state.progress.attempts || {})) {
+    const courseAttempts = studentAttempts[courseId];
+    if (courseAttempts?.units) delete courseAttempts.units[unitId];
+  }
+  saveStorage(STORAGE.courses, state.courses);
+  saveStorage(STORAGE.progress, state.progress);
+  state.message = { type: "success", text: "היחידה נמחקה." };
+}
+
+async function submitQuestions(form) {
+  const student = getSelectedStudent();
+  const course = getCourse(form.dataset.courseId);
+  const unit = getUnit(course, form.dataset.unitId);
+  if (!student || !course || !unit) return;
+
+  const kind = form.dataset.kind;
+  const questions = await loadQuestions(unit, kind);
   const data = new FormData(form);
   const answers = {};
   let score = 0;
   let total = 0;
+  let correctCount = 0;
 
   for (const question of questions) {
     const answer = String(data.get(question.id) || "").trim();
     answers[question.id] = answer;
     const points = Number(question.points) || 0;
     total += points;
-    if (isCorrect(answer, question.correctAnswer)) score += points;
+    if (isCorrect(answer, question.correctAnswer)) {
+      score += points;
+      correctCount += 1;
+    }
   }
 
-  setAttempt(student.id, course.id, kind, {
+  setAttempt(student.id, course.id, unit.id, kind, {
     answers,
     score,
     total,
     submittedAt: new Date().toISOString(),
   });
   saveStorage(STORAGE.progress, state.progress);
+  if (kind === "exercises") {
+    const fullCode = questions.map((question, index) => getGameReward(question, index)).join("");
+    const message =
+      correctCount === questions.length
+        ? `כל הכבוד! פתחת את כל הקוד: ${fullCode}`
+        : `המשחק נשמר. פתחת ${correctCount}/${questions.length} חלקי קוד.`;
+    return show("success", message);
+  }
   return show("success", `ההגשה נשמרה. הציון: ${score}/${total}`);
 }
 
 async function overrideScore(form, data) {
-  const attempt = getAttempt(form.dataset.studentId, form.dataset.courseId, form.dataset.kind);
+  const attempt = getAttempt(form.dataset.studentId, form.dataset.courseId, form.dataset.unitId, form.dataset.kind);
   if (!attempt) return;
   const newScore = Number(data.get("score"));
   if (Number.isNaN(newScore) || newScore < 0 || newScore > attempt.total) {
@@ -919,7 +1257,7 @@ async function overrideScore(form, data) {
 
 function exportBackup() {
   const backup = {
-    version: 1,
+    version: 2,
     exportedAt: new Date().toISOString(),
     students: state.students,
     courses: state.courses,
@@ -945,7 +1283,7 @@ async function importBackup(data) {
     const backup = JSON.parse(file && file.size ? await file.text() : pastedText);
     if (!isValidBackup(backup)) throw new Error("Invalid backup");
     state.students = backup.students;
-    state.courses = backup.courses;
+    state.courses = backup.courses.map(normalizeCourse);
     state.progress = backup.progress;
     state.adminSettings = backup.adminSettings;
     saveAll();
@@ -971,19 +1309,45 @@ function getSelectedStudent() {
   return state.students.find((student) => student.id === state.selectedStudentId);
 }
 
-function getAttempt(studentId, courseId, kind) {
-  return state.progress.attempts?.[studentId]?.[courseId]?.[kind] || null;
+function getSelectedUnit(course) {
+  if (!course?.units?.length) return null;
+  const unit = course.units.find((item) => item.id === state.selectedUnitId) || course.units[0];
+  state.selectedUnitId = unit.id;
+  return unit;
 }
 
-function setAttempt(studentId, courseId, kind, attempt) {
+function getCourse(courseId) {
+  return state.courses.find((course) => course.id === courseId);
+}
+
+function getUnit(course, unitId) {
+  return course?.units?.find((unit) => unit.id === unitId);
+}
+
+function getAttempt(studentId, courseId, unitId, kind) {
+  const courseAttempts = state.progress.attempts?.[studentId]?.[courseId];
+  return courseAttempts?.units?.[unitId]?.[kind] || courseAttempts?.[kind] || null;
+}
+
+function setAttempt(studentId, courseId, unitId, kind, attempt) {
   state.progress.attempts = state.progress.attempts || {};
   state.progress.attempts[studentId] = state.progress.attempts[studentId] || {};
   state.progress.attempts[studentId][courseId] = state.progress.attempts[studentId][courseId] || {};
-  state.progress.attempts[studentId][courseId][kind] = attempt;
+  state.progress.attempts[studentId][courseId].units = state.progress.attempts[studentId][courseId].units || {};
+  state.progress.attempts[studentId][courseId].units[unitId] = state.progress.attempts[studentId][courseId].units[unitId] || {};
+  state.progress.attempts[studentId][courseId].units[unitId][kind] = attempt;
 }
 
 function getCurrentScore(attempt) {
   return attempt.override ? attempt.override.score : attempt.score;
+}
+
+function countCorrectAnswers(questions, answers = {}) {
+  return questions.filter((question) => isCorrect(answers[question.id], question.correctAnswer)).length;
+}
+
+function getGameReward(question, index) {
+  return question.gameReward || question.reward || String(index + 1);
 }
 
 function isCorrect(answer, correctAnswer) {
@@ -1101,6 +1465,17 @@ function inlineMarkdown(text) {
     .replace(/`(.*?)`/g, "<code>$1</code>");
 }
 
+function sampleUnitFormat() {
+  return {
+    id: "decimal-place-value",
+    title: "ערך המקום בעשרוניים",
+    description: "יחידה קצרה עם הסבר, משחק ומבחן.",
+    lessonMarkdown: "# כותרת ההסבר\n\nטקסט ההסבר בעברית.",
+    exercises: [sampleQuestionFormat()[0]],
+    tests: [sampleQuestionFormat()[0]],
+  };
+}
+
 function sampleQuestionFormat() {
   return [
     {
@@ -1113,6 +1488,14 @@ function sampleQuestionFormat() {
       explanation: "הסבר קצר לתלמידה אחרי ההגשה",
     },
   ];
+}
+
+function slugify(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9\u0590-\u05ff]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 function escapeHtml(value) {

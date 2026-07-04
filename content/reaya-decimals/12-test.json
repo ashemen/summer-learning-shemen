@@ -1,0 +1,53 @@
+[
+  {
+    "id": "u12-test-1",
+    "type": "multiple_choice",
+    "prompt": "איזה מספר מתאים לשלוש מאיות?",
+    "choices": ["0.03", "0.3", "3.0", "0.003"],
+    "correctAnswer": "0.03",
+    "points": 15,
+    "explanation": "שלוש מאיות נכתבות 0.03."
+  },
+  {
+    "id": "u12-test-2",
+    "type": "multiple_choice",
+    "prompt": "מה גדול יותר: 1.75 או 1.57?",
+    "choices": ["1.75", "1.57", "הם שווים", "אי אפשר לדעת"],
+    "correctAnswer": "1.75",
+    "points": 15,
+    "explanation": "1.75 גדול מ-1.57."
+  },
+  {
+    "id": "u12-test-3",
+    "type": "multiple_choice",
+    "prompt": "איזו פעולה מתאימה למילים \"חילקו שווה בשווה\"?",
+    "choices": ["חילוק", "חיבור", "השוואה", "קריאה בקול"],
+    "correctAnswer": "חילוק",
+    "points": 15,
+    "explanation": "חלוקה שווה היא חילוק."
+  },
+  {
+    "id": "u12-test-4",
+    "type": "short_answer",
+    "prompt": "פתרי: 8.00 - 3.75",
+    "correctAnswer": "4.25",
+    "points": 15,
+    "explanation": "8.00 פחות 3.75 שווה 4.25."
+  },
+  {
+    "id": "u12-test-5",
+    "type": "short_answer",
+    "prompt": "פתרי: 1.25 × 4",
+    "correctAnswer": "5.00",
+    "points": 20,
+    "explanation": "1.25 כפול 4 שווה 5.00."
+  },
+  {
+    "id": "u12-test-6",
+    "type": "short_answer",
+    "prompt": "לרעיה היו 20.00 ש\"ח. היא קנתה ספרון ב-8.75 ש\"ח ומדבקות ב-3.50 ש\"ח. כמה כסף נשאר לה?",
+    "correctAnswer": "7.75",
+    "points": 20,
+    "explanation": "8.75 + 3.50 = 12.25, ואז 20.00 - 12.25 = 7.75."
+  }
+]

@@ -1,0 +1,53 @@
+[
+  {
+    "id": "u11-ex-1",
+    "type": "multiple_choice",
+    "prompt": "בבעיה עם המילים \"בסך הכל\", איזו פעולה בדרך כלל מתאימה?",
+    "choices": ["חיבור", "חיסור", "חילוק", "השוואה בלבד"],
+    "correctAnswer": "חיבור",
+    "points": 10,
+    "explanation": "\"בסך הכל\" בדרך כלל אומר שמחברים כמויות."
+  },
+  {
+    "id": "u11-ex-2",
+    "type": "short_answer",
+    "prompt": "רעיה קנתה מחברת ב-5.40 ש\"ח ועט ב-2.30 ש\"ח. כמה שילמה?",
+    "correctAnswer": "7.70",
+    "points": 10,
+    "explanation": "5.40 + 2.30 = 7.70."
+  },
+  {
+    "id": "u11-ex-3",
+    "type": "multiple_choice",
+    "prompt": "אם כתוב \"כמה נשאר\", איזו פעולה בדרך כלל מתאימה?",
+    "choices": ["חיסור", "כפל", "חיבור", "כתיבה במילים"],
+    "correctAnswer": "חיסור",
+    "points": 10,
+    "explanation": "\"נשאר\" בדרך כלל רומז לחיסור."
+  },
+  {
+    "id": "u11-ex-4",
+    "type": "short_answer",
+    "prompt": "בקבוק מכיל 1.5 ליטר. שתו ממנו 0.65 ליטר. כמה נשאר?",
+    "correctAnswer": "0.85",
+    "points": 10,
+    "explanation": "1.50 - 0.65 = 0.85."
+  },
+  {
+    "id": "u11-ex-5",
+    "type": "multiple_choice",
+    "prompt": "חטיף עולה 3.25 ש\"ח. כמה יעלו 4 חטיפים?",
+    "choices": ["13.00", "7.25", "12.25", "3.29"],
+    "correctAnswer": "13.00",
+    "points": 10,
+    "explanation": "3.25 × 4 = 13.00."
+  },
+  {
+    "id": "u11-ex-6",
+    "type": "short_answer",
+    "prompt": "5 ילדות חילקו ביניהן 12.50 ש\"ח שווה בשווה. כמה קיבלה כל אחת?",
+    "correctAnswer": "2.50",
+    "points": 10,
+    "explanation": "12.50 ÷ 5 = 2.50."
+  }
+]

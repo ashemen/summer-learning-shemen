@@ -1,0 +1,53 @@
+[
+  {
+    "id": "u03-test-1",
+    "type": "multiple_choice",
+    "prompt": "איזה מספר שווה ל-0.50?",
+    "choices": ["0.5", "0.05", "5.0", "0.005"],
+    "correctAnswer": "0.5",
+    "points": 15,
+    "explanation": "אפס בסוף המספר העשירוני לא משנה את הערך."
+  },
+  {
+    "id": "u03-test-2",
+    "type": "multiple_choice",
+    "prompt": "איך קוראים את 1.25?",
+    "choices": ["אחת ועשרים וחמש מאיות", "אחת ועשרים וחמש עשיריות", "מאה עשרים וחמש", "אחת ושתי עשיריות"],
+    "correctAnswer": "אחת ועשרים וחמש מאיות",
+    "points": 15,
+    "explanation": "25 נמצא עד מקום המאיות, לכן קוראים עשרים וחמש מאיות."
+  },
+  {
+    "id": "u03-test-3",
+    "type": "multiple_choice",
+    "prompt": "איזה מספר מתאים לחמש עשיריות?",
+    "choices": ["0.5", "0.05", "5.0", "0.005"],
+    "correctAnswer": "0.5",
+    "points": 15,
+    "explanation": "חמש עשיריות הן 0.5."
+  },
+  {
+    "id": "u03-test-4",
+    "type": "short_answer",
+    "prompt": "כתבי במספרים: תשע מאיות",
+    "correctAnswer": "0.09",
+    "points": 15,
+    "explanation": "תשע מאיות נכתבות 0.09."
+  },
+  {
+    "id": "u03-test-5",
+    "type": "short_answer",
+    "prompt": "מחקי אפסים מיותרים: 8.0200",
+    "correctAnswer": "8.02",
+    "points": 20,
+    "explanation": "האפסים בסוף מיותרים, אבל האפס לפני 2 חשוב כי הוא במקום העשיריות."
+  },
+  {
+    "id": "u03-test-6",
+    "type": "short_answer",
+    "prompt": "הוסיפי אפס בלי לשנות את הערך: 4.6",
+    "correctAnswer": "4.60",
+    "points": 20,
+    "explanation": "4.6 ו-4.60 הם אותו מספר."
+  }
+]

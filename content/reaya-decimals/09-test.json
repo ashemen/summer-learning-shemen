@@ -1,0 +1,53 @@
+[
+  {
+    "id": "u09-test-1",
+    "type": "multiple_choice",
+    "prompt": "כמה שווה 2.25 × 2?",
+    "choices": ["4.50", "2.50", "4.25", "22.50"],
+    "correctAnswer": "4.50",
+    "points": 15,
+    "explanation": "2.25 ועוד 2.25 שווה 4.50."
+  },
+  {
+    "id": "u09-test-2",
+    "type": "multiple_choice",
+    "prompt": "כמה שווה 1.05 × 6?",
+    "choices": ["6.30", "6.05", "1.11", "10.56"],
+    "correctAnswer": "6.30",
+    "points": 15,
+    "explanation": "1.05 כפול 6 שווה 6.30."
+  },
+  {
+    "id": "u09-test-3",
+    "type": "multiple_choice",
+    "prompt": "4.90 × 3 קרוב יותר ל...",
+    "choices": ["15", "12", "5", "30"],
+    "correctAnswer": "15",
+    "points": 15,
+    "explanation": "4.90 קרוב ל-5, ו-5 כפול 3 הוא 15."
+  },
+  {
+    "id": "u09-test-4",
+    "type": "short_answer",
+    "prompt": "פתרי: 3.4 × 2",
+    "correctAnswer": "6.8",
+    "points": 15,
+    "explanation": "3.4 ועוד 3.4 שווה 6.8."
+  },
+  {
+    "id": "u09-test-5",
+    "type": "short_answer",
+    "prompt": "מחברת עולה 4.50 ש\"ח. כמה יעלו 3 מחברות?",
+    "correctAnswer": "13.50",
+    "points": 20,
+    "explanation": "4.50 × 3 = 13.50."
+  },
+  {
+    "id": "u09-test-6",
+    "type": "short_answer",
+    "prompt": "פתרי: 1.25 × 4",
+    "correctAnswer": "5.00",
+    "points": 20,
+    "explanation": "1.25 כפול 4 שווה 5.00."
+  }
+]

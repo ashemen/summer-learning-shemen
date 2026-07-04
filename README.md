@@ -4,13 +4,11 @@
 
 ## הפעלה מקומית
 
-פתחי מסוף בתיקייה הזאת והריצי:
-
 ```bash
 python -m http.server 8000
 ```
 
-לאחר מכן פתחי בדפדפן:
+ואז לפתוח בדפדפן:
 
 ```text
 http://localhost:8000
@@ -20,21 +18,25 @@ http://localhost:8000
 
 ## סיסמת אבא
 
-בכניסה הראשונה לאיזור אבא תתבקשי לבחור סיסמה. הסיסמה לא נשמרת כטקסט גלוי, אלא כ-hash עם salt בתוך אחסון הדפדפן.
+בכניסה הראשונה לאיזור אבא בוחרים סיסמה. הסיסמה נשמרת כ-hash עם salt באחסון הדפדפן, ולא כטקסט גלוי.
 
-אם הסיסמה נשכחה, אפשר לאפס אותה דרך Codex או מסוף מקומי:
+אם הסיסמה נשכחה:
 
 ```bash
 python scripts/reset_admin_password.py "סיסמה חדשה"
 ```
 
-לאחר מכן רענני את הדפדפן. האפליקציה תזהה את `data/admin-settings.json` המעודכן ותחליף את סיסמת אבא המקומית.
+לאחר מכן לרענן את הדפדפן. האפליקציה תזהה את `data/admin-settings.json` המעודכן ותחליף את סיסמת אבא המקומית.
 
-## מבנה תוכן AI
+## קורסים ויחידות
 
-האפליקציה קוראת הסברים מקבצי Markdown, ותרגילים/מבחנים מקבצי JSON.
+כל קורס יכול להכיל כמה יחידות. כל יחידה יכולה לכלול כל שילוב של:
 
-קורס מוגדר בתוך `data/courses.json` כך:
+- הסבר Markdown
+- משחק JSON
+- מבחן JSON
+
+מבנה קורס:
 
 ```json
 {
@@ -42,19 +44,35 @@ python scripts/reset_admin_password.py "סיסמה חדשה"
   "title": "חשבון לקיץ",
   "subject": "מתמטיקה",
   "description": "תיאור קצר של הקורס",
-  "lessons": [
+  "units": [
     {
       "id": "fractions-intro",
       "title": "מבוא לשברים",
-      "contentFile": "content/sample-course/fractions.md"
+      "description": "היכרות עם שברים",
+      "lessonFile": "content/sample-course/fractions.md",
+      "exercisesFile": "content/sample-course/exercises.json",
+      "testsFile": "content/sample-course/tests.json"
     }
-  ],
-  "exercisesFile": "content/sample-course/exercises.json",
-  "testsFile": "content/sample-course/tests.json"
+  ]
 }
 ```
 
-תרגיל או שאלה במבחן צריכים להיות במבנה:
+אפשר גם לשמור תוכן ישירות בתוך היחידה, בלי קבצים:
+
+```json
+{
+  "id": "decimal-place-value",
+  "title": "ערך המקום בעשרוניים",
+  "description": "יחידה קצרה עם הסבר, משחק ומבחן.",
+  "lessonMarkdown": "# ערך המקום\n\nהסבר בעברית.",
+  "exercises": [],
+  "tests": []
+}
+```
+
+## פורמט שאלה
+
+שאלות בתוך `exercises` מוצגות באפליקציה כמשחק פתיחת קוד. אפשר להוסיף לכל שאלה `gameReward` או `reward` כדי לבחור איזה חלק קוד ייחשף אחרי תשובה נכונה. אם לא מוסיפים, האפליקציה תשתמש במספר המשימה.
 
 ```json
 {
@@ -63,6 +81,7 @@ python scripts/reset_admin_password.py "סיסמה חדשה"
   "prompt": "מהו חצי של 10?",
   "choices": ["2", "5", "8", "10"],
   "correctAnswer": "5",
+  "gameReward": "3",
   "points": 10,
   "explanation": "חצי פירושו לחלק לשני חלקים שווים."
 }
@@ -81,41 +100,53 @@ python scripts/reset_admin_password.py "סיסמה חדשה"
 }
 ```
 
-## פרומפטים לדוגמה ליצירת תוכן
+## העלאת תוכן דרך איזור אבא
 
-### יצירת הסבר Markdown
+באיזור אבא נכנסים אל `קורסים ויחידות`.
 
-```text
-צרי שיעור קצר בעברית לתלמידה בבית ספר יסודי בנושא [נושא].
-החזירי Markdown בלבד.
-כללי:
-- כותרת ראשית אחת
-- 2-3 כותרות משנה
-- דוגמאות פשוטות
-- רשימת נקודות קצרה
-- שפה חמה וברורה
+אפשר:
+
+- להוסיף קורס.
+- להוסיף כמה יחידות לכל קורס.
+- לערוך שם, תיאור, קבצי Markdown/JSON או תוכן מודבק ישירות.
+- להעלות קובץ Markdown להסבר.
+- להעלות קובץ JSON למשחק או מבחן.
+- לייבא יחידה שלמה מ-Codex כקובץ JSON או בהדבקת JSON.
+
+## העלאת תוכן אוטומטית על ידי Codex
+
+Codex יכול ליצור קובץ JSON של יחידה ואז להריץ:
+
+```bash
+python scripts/upsert_course_unit.py --course-id math-summer --unit-json generated-unit.json
 ```
 
-### יצירת תרגול JSON
+הסקריפט מוסיף את היחידה לקורס או מחליף יחידה קיימת עם אותו `id`. לאחר מכן צריך להעלות לגיט ולפרוס ל-Firebase.
 
-```text
-צרי 5 שאלות תרגול בעברית בנושא [נושא].
-החזירי JSON בלבד במערך.
-כל שאלה חייבת לכלול:
-id, type, prompt, choices אם זו שאלה אמריקאית, correctAnswer, points, explanation.
-השתמשי רק ב-type מהאפשרויות: multiple_choice או short_answer.
-```
+מבנה JSON מומלץ ל-Codex:
 
-### יצירת מבחן JSON
-
-```text
-צרי מבחן קצר בעברית בנושא [נושא].
-החזירי JSON בלבד במערך של 6 שאלות.
-הציונים צריכים להסתכם ל-100 נקודות.
-כל שאלה חייבת לכלול:
-id, type, prompt, choices אם זו שאלה אמריקאית, correctAnswer, points, explanation.
+```json
+{
+  "id": "unit-id",
+  "title": "שם היחידה",
+  "description": "תיאור קצר",
+  "lessonMarkdown": "# הסבר\n\nטקסט ההסבר.",
+  "exercises": [
+    {
+      "id": "ex-1",
+      "type": "multiple_choice",
+      "prompt": "שאלה בעברית",
+      "choices": ["א", "ב", "ג"],
+      "correctAnswer": "א",
+      "gameReward": "א",
+      "points": 10,
+      "explanation": "הסבר קצר"
+    }
+  ],
+  "tests": []
+}
 ```
 
 ## גיבוי ושחזור
 
-באיזור אבא אפשר לייצא קובץ גיבוי JSON הכולל תלמידות, קורסים, התקדמות והגדרות אבא. אפשר לייבא גיבוי קודם כקובץ או בהדבקת JSON, לאחר בדיקת מבנה בסיסית.
+באיזור אבא אפשר לייצא קובץ גיבוי JSON הכולל תלמידות, קורסים, יחידות, התקדמות והגדרות אבא. אפשר לייבא גיבוי קודם כקובץ או בהדבקת JSON.

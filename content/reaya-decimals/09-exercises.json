@@ -1,0 +1,53 @@
+[
+  {
+    "id": "u09-ex-1",
+    "type": "multiple_choice",
+    "prompt": "כמה שווה 0.5 × 4?",
+    "choices": ["2.0", "0.20", "4.5", "1.0"],
+    "correctAnswer": "2.0",
+    "points": 10,
+    "explanation": "חצי ארבע פעמים הוא שני שלמים."
+  },
+  {
+    "id": "u09-ex-2",
+    "type": "short_answer",
+    "prompt": "פתרי: 1.2 × 3",
+    "correctAnswer": "3.6",
+    "points": 10,
+    "explanation": "1.2 + 1.2 + 1.2 = 3.6."
+  },
+  {
+    "id": "u09-ex-3",
+    "type": "multiple_choice",
+    "prompt": "כמה יעלו 2 מוצרים אם כל מוצר עולה 3.20 ש\"ח?",
+    "choices": ["6.40", "3.40", "5.20", "32.0"],
+    "correctAnswer": "6.40",
+    "points": 10,
+    "explanation": "3.20 × 2 = 6.40."
+  },
+  {
+    "id": "u09-ex-4",
+    "type": "short_answer",
+    "prompt": "פתרי: 0.75 × 4",
+    "correctAnswer": "3.00",
+    "points": 10,
+    "explanation": "75 אגורות כפול 4 הן 300 אגורות, כלומר 3.00."
+  },
+  {
+    "id": "u09-ex-5",
+    "type": "multiple_choice",
+    "prompt": "כפל עשירוני במספר שלם הוא כמו...",
+    "choices": ["חיבור חוזר", "חיסור חוזר", "מחיקת נקודה", "השוואת מספרים"],
+    "correctAnswer": "חיבור חוזר",
+    "points": 10,
+    "explanation": "למשל 2.50 × 3 הוא 2.50 + 2.50 + 2.50."
+  },
+  {
+    "id": "u09-ex-6",
+    "type": "short_answer",
+    "prompt": "בקבוק מים עולה 2.80 ש\"ח. כמה יעלו 5 בקבוקים?",
+    "correctAnswer": "14.00",
+    "points": 10,
+    "explanation": "2.80 × 5 = 14.00."
+  }
+]

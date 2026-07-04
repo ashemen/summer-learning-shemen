@@ -1,0 +1,53 @@
+[
+  {
+    "id": "u10-ex-1",
+    "type": "multiple_choice",
+    "prompt": "כמה שווה 0.8 ÷ 2?",
+    "choices": ["0.4", "0.6", "1.6", "0.2"],
+    "correctAnswer": "0.4",
+    "points": 10,
+    "explanation": "שמונה עשיריות לחלק ל-2 הן ארבע עשיריות."
+  },
+  {
+    "id": "u10-ex-2",
+    "type": "short_answer",
+    "prompt": "פתרי: 1.2 ÷ 3",
+    "correctAnswer": "0.4",
+    "points": 10,
+    "explanation": "1.2 לחלק ל-3 שווה 0.4."
+  },
+  {
+    "id": "u10-ex-3",
+    "type": "multiple_choice",
+    "prompt": "כמה מקבלת כל ילדה אם מחלקים 6.00 ש\"ח בין 3 ילדות?",
+    "choices": ["2.00", "3.00", "6.00", "0.30"],
+    "correctAnswer": "2.00",
+    "points": 10,
+    "explanation": "6.00 ÷ 3 = 2.00."
+  },
+  {
+    "id": "u10-ex-4",
+    "type": "short_answer",
+    "prompt": "פתרי: 2.5 ÷ 5",
+    "correctAnswer": "0.5",
+    "points": 10,
+    "explanation": "2.5 לחלק ל-5 שווה 0.5."
+  },
+  {
+    "id": "u10-ex-5",
+    "type": "multiple_choice",
+    "prompt": "איך אפשר לבדוק חילוק?",
+    "choices": ["בעזרת כפל", "בעזרת מחיקת הנקודה", "בעזרת סידור מהקטן לגדול", "אי אפשר לבדוק"],
+    "correctAnswer": "בעזרת כפל",
+    "points": 10,
+    "explanation": "אם 4.50 ÷ 3 = 1.50, אז 1.50 × 3 = 4.50."
+  },
+  {
+    "id": "u10-ex-6",
+    "type": "short_answer",
+    "prompt": "סרט באורך 2.4 מטר נחתך ל-4 חלקים שווים. מה אורך כל חלק?",
+    "correctAnswer": "0.6",
+    "points": 10,
+    "explanation": "2.4 ÷ 4 = 0.6."
+  }
+]

@@ -10,6 +10,7 @@
       "**/node_modules/**",
       "implementation-prompts/**",
       "scripts/**",
+      "חשבון רעיה/**",
       "run_implementation_prompts.py"
     ],
     "headers": [

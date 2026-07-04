@@ -1,0 +1,53 @@
+[
+  {
+    "id": "u02-ex-1",
+    "type": "multiple_choice",
+    "prompt": "מהי ספרת העשיריות במספר 4.27?",
+    "choices": ["2", "7", "4", "27"],
+    "correctAnswer": "2",
+    "points": 10,
+    "explanation": "ספרת העשיריות היא הספרה הראשונה אחרי הנקודה."
+  },
+  {
+    "id": "u02-ex-2",
+    "type": "short_answer",
+    "prompt": "מהי ספרת המאיות במספר 6.38?",
+    "correctAnswer": "8",
+    "points": 10,
+    "explanation": "ספרת המאיות היא הספרה השנייה אחרי הנקודה."
+  },
+  {
+    "id": "u02-ex-3",
+    "type": "multiple_choice",
+    "prompt": "במספר 2.506, מהי ספרת האלפיות?",
+    "choices": ["6", "5", "0", "2"],
+    "correctAnswer": "6",
+    "points": 10,
+    "explanation": "ספרת האלפיות היא הספרה השלישית אחרי הנקודה."
+  },
+  {
+    "id": "u02-ex-4",
+    "type": "short_answer",
+    "prompt": "מה הערך של הספרה 6 במספר 2.6?",
+    "correctAnswer": "6 עשיריות",
+    "points": 10,
+    "explanation": "במספר 2.6 הספרה 6 נמצאת במקום העשיריות."
+  },
+  {
+    "id": "u02-ex-5",
+    "type": "multiple_choice",
+    "prompt": "איזה מספר כולל 3 מאיות?",
+    "choices": ["0.03", "0.3", "3.0", "0.003"],
+    "correctAnswer": "0.03",
+    "points": 10,
+    "explanation": "מאיות נמצאות במקום השני אחרי הנקודה, לכן 3 מאיות הן 0.03."
+  },
+  {
+    "id": "u02-ex-6",
+    "type": "short_answer",
+    "prompt": "מהי ספרת העשיריות במספר 12.904?",
+    "correctAnswer": "9",
+    "points": 10,
+    "explanation": "הספרה הראשונה אחרי הנקודה היא 9."
+  }
+]

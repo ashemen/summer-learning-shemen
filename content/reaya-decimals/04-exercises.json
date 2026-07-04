@@ -1,0 +1,53 @@
+[
+  {
+    "id": "u04-ex-1",
+    "type": "multiple_choice",
+    "prompt": "כמה אגורות יש ב-0.30 ש\"ח?",
+    "choices": ["30", "3", "300", "0"],
+    "correctAnswer": "30",
+    "points": 10,
+    "explanation": "0.30 שקלים הם 30 אגורות."
+  },
+  {
+    "id": "u04-ex-2",
+    "type": "short_answer",
+    "prompt": "כתבי בשקלים: 75 אגורות",
+    "correctAnswer": "0.75",
+    "points": 10,
+    "explanation": "75 אגורות הן 0.75 שקלים."
+  },
+  {
+    "id": "u04-ex-3",
+    "type": "multiple_choice",
+    "prompt": "מה גדול יותר?",
+    "choices": ["1.5 ק\"ג", "1.25 ק\"ג", "הם שווים", "אי אפשר לדעת"],
+    "correctAnswer": "1.5 ק\"ג",
+    "points": 10,
+    "explanation": "1.5 שווה ל-1.50, וזה גדול מ-1.25."
+  },
+  {
+    "id": "u04-ex-4",
+    "type": "short_answer",
+    "prompt": "כתבי במטרים: 50 ס\"מ",
+    "correctAnswer": "0.5",
+    "points": 10,
+    "explanation": "50 סנטימטרים הם חצי מטר, כלומר 0.5 מטר."
+  },
+  {
+    "id": "u04-ex-5",
+    "type": "multiple_choice",
+    "prompt": "מה המשמעות של 3.50 ש\"ח?",
+    "choices": ["3 שקלים ו-50 אגורות", "350 שקלים", "3 אגורות ו-50 שקלים", "חצי שקל"],
+    "correctAnswer": "3 שקלים ו-50 אגורות",
+    "points": 10,
+    "explanation": "בכסף, שתי הספרות אחרי הנקודה מייצגות אגורות."
+  },
+  {
+    "id": "u04-ex-6",
+    "type": "short_answer",
+    "prompt": "כתבי בשקלים: 125 אגורות",
+    "correctAnswer": "1.25",
+    "points": 10,
+    "explanation": "125 אגורות הן שקל אחד ו-25 אגורות, כלומר 1.25 ש\"ח."
+  }
+]

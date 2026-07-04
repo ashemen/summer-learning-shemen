@@ -1,0 +1,53 @@
+[
+  {
+    "id": "u04-test-1",
+    "type": "multiple_choice",
+    "prompt": "כמה אגורות יש ב-2.05 ש\"ח?",
+    "choices": ["205", "25", "2", "5"],
+    "correctAnswer": "205",
+    "points": 15,
+    "explanation": "2.05 שקלים הם 205 אגורות."
+  },
+  {
+    "id": "u04-test-2",
+    "type": "multiple_choice",
+    "prompt": "איזה מחיר הוא הזול ביותר?",
+    "choices": ["2.90", "3.05", "3.20", "4.00"],
+    "correctAnswer": "2.90",
+    "points": 15,
+    "explanation": "2.90 קטן מכל המחירים האחרים."
+  },
+  {
+    "id": "u04-test-3",
+    "type": "multiple_choice",
+    "prompt": "כמה מטרים הם 125 ס\"מ?",
+    "choices": ["1.25", "12.5", "0.125", "125.0"],
+    "correctAnswer": "1.25",
+    "points": 15,
+    "explanation": "100 ס\"מ הם מטר, ועוד 25 ס\"מ הם 0.25 מטר."
+  },
+  {
+    "id": "u04-test-4",
+    "type": "short_answer",
+    "prompt": "כתבי בשקלים: 40 אגורות",
+    "correctAnswer": "0.40",
+    "points": 15,
+    "explanation": "40 אגורות הן 0.40 שקלים."
+  },
+  {
+    "id": "u04-test-5",
+    "type": "short_answer",
+    "prompt": "כמה שקלים וכמה אגורות יש ב-7.30 ש\"ח?",
+    "correctAnswer": "7 שקלים ו-30 אגורות",
+    "points": 20,
+    "explanation": "החלק השלם הוא שקלים, ושתי הספרות אחרי הנקודה הן אגורות."
+  },
+  {
+    "id": "u04-test-6",
+    "type": "short_answer",
+    "prompt": "מה גדול יותר: 0.5 ק\"ג או 0.75 ק\"ג?",
+    "correctAnswer": "0.75",
+    "points": 20,
+    "explanation": "0.75 גדול מ-0.50."
+  }
+]

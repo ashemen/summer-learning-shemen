@@ -1,0 +1,53 @@
+[
+  {
+    "id": "u03-ex-1",
+    "type": "multiple_choice",
+    "prompt": "איך קוראים את 0.6?",
+    "choices": ["שש עשיריות", "שש מאיות", "שישה שלמים", "שש אלפיות"],
+    "correctAnswer": "שש עשיריות",
+    "points": 10,
+    "explanation": "0.6 הוא שש עשיריות."
+  },
+  {
+    "id": "u03-ex-2",
+    "type": "short_answer",
+    "prompt": "כתבי במספרים: שבע מאיות",
+    "correctAnswer": "0.07",
+    "points": 10,
+    "explanation": "מאיות הן המקום השני אחרי הנקודה, לכן שבע מאיות הן 0.07."
+  },
+  {
+    "id": "u03-ex-3",
+    "type": "multiple_choice",
+    "prompt": "איזה מספר שווה ל-2.7?",
+    "choices": ["2.70", "2.07", "27.0", "0.27"],
+    "correctAnswer": "2.70",
+    "points": 10,
+    "explanation": "אפס בסוף החלק העשירוני לא משנה את הערך."
+  },
+  {
+    "id": "u03-ex-4",
+    "type": "short_answer",
+    "prompt": "מחקי אפסים מיותרים: 5.300",
+    "correctAnswer": "5.3",
+    "points": 10,
+    "explanation": "האפסים בסוף לא משנים את הערך, לכן 5.300 שווה ל-5.3."
+  },
+  {
+    "id": "u03-ex-5",
+    "type": "multiple_choice",
+    "prompt": "איך קוראים את 3.08?",
+    "choices": ["שלוש ושמונה מאיות", "שלוש ושמונה עשיריות", "שלושים ושמונה", "שלוש ושמונה אלפיות"],
+    "correctAnswer": "שלוש ושמונה מאיות",
+    "points": 10,
+    "explanation": "הספרה 8 נמצאת במקום המאיות."
+  },
+  {
+    "id": "u03-ex-6",
+    "type": "short_answer",
+    "prompt": "כתבי במספרים: שתיים ושלוש עשיריות",
+    "correctAnswer": "2.3",
+    "points": 10,
+    "explanation": "שתיים ושלוש עשיריות נכתבות 2.3."
+  }
+]

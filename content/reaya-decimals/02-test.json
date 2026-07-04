@@ -1,0 +1,53 @@
+[
+  {
+    "id": "u02-test-1",
+    "type": "multiple_choice",
+    "prompt": "מהי ספרת העשיריות במספר 8.41?",
+    "choices": ["4", "1", "8", "41"],
+    "correctAnswer": "4",
+    "points": 15,
+    "explanation": "ספרת העשיריות היא הספרה הראשונה אחרי הנקודה."
+  },
+  {
+    "id": "u02-test-2",
+    "type": "multiple_choice",
+    "prompt": "מהי ספרת המאיות במספר 0.75?",
+    "choices": ["5", "7", "0", "75"],
+    "correctAnswer": "5",
+    "points": 15,
+    "explanation": "ספרת המאיות היא הספרה השנייה אחרי הנקודה."
+  },
+  {
+    "id": "u02-test-3",
+    "type": "multiple_choice",
+    "prompt": "איזה מספר מראה 4 אלפיות?",
+    "choices": ["0.004", "0.04", "0.4", "4.0"],
+    "correctAnswer": "0.004",
+    "points": 15,
+    "explanation": "אלפיות נמצאות במקום השלישי אחרי הנקודה."
+  },
+  {
+    "id": "u02-test-4",
+    "type": "short_answer",
+    "prompt": "מהי ספרת המאיות במספר 9.306?",
+    "correctAnswer": "0",
+    "points": 15,
+    "explanation": "ב-9.306 הספרה השנייה אחרי הנקודה היא 0."
+  },
+  {
+    "id": "u02-test-5",
+    "type": "short_answer",
+    "prompt": "מה הערך של הספרה 7 במספר 3.07?",
+    "correctAnswer": "7 מאיות",
+    "points": 20,
+    "explanation": "הספרה 7 נמצאת במקום המאיות."
+  },
+  {
+    "id": "u02-test-6",
+    "type": "short_answer",
+    "prompt": "כתבי מספר שבו הספרה 5 נמצאת במקום העשיריות.",
+    "correctAnswer": "0.5",
+    "points": 20,
+    "explanation": "ב-0.5 הספרה 5 נמצאת במקום העשיריות."
+  }
+]
