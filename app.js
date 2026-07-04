@@ -944,6 +944,33 @@ function renderCourseEditor(course) {
       </div>
       <p>${escapeHtml(course.description || "ללא תיאור")}</p>
       <details>
+        <summary>עריכת פרטי קורס</summary>
+        <form data-form="update-course" data-course-id="${course.id}" class="grid form-slab">
+          <label>שם קורס
+            <input name="title" value="${escapeAttr(course.title)}" required />
+          </label>
+          <label>תחום
+            <input name="subject" value="${escapeAttr(course.subject || "")}" placeholder="לדוגמה: מתמטיקה" />
+          </label>
+          <label>תיאור
+            <textarea name="description" rows="3">${escapeHtml(course.description || "")}</textarea>
+          </label>
+          <button class="secondary" type="submit">שמירת פרטי קורס</button>
+        </form>
+      </details>
+      <details>
+        <summary>עדכון קורס מלא מ-Codex או מקובץ JSON</summary>
+        <form data-form="import-course" data-course-id="${course.id}" class="grid form-slab">
+          <label>קובץ קורס JSON
+            <input type="file" name="courseFile" accept="application/json,.json" />
+          </label>
+          <label>או הדבקת JSON של קורס
+            <textarea class="textarea-code" name="courseJson" rows="8" placeholder='{"title":"שם קורס","subject":"תחום","description":"תיאור","units":[{"title":"יחידה","lessonFile":"content/course/unit.md","exercisesFile":"content/course/exercises.json","testsFile":"content/course/test.json"}]}'></textarea>
+          </label>
+          <button class="secondary" type="submit">עדכון הקורס והיחידות</button>
+        </form>
+      </details>
+      <details>
         <summary>הוספת יחידה חדשה</summary>
         <form data-form="add-unit" data-course-id="${course.id}" class="grid form-slab">
           <label>שם יחידה
@@ -1228,6 +1255,8 @@ async function handleSubmit(event) {
   if (form.id === "change-password") return changePassword(data);
   if (form.id === "add-student") return addStudent(data);
   if (form.id === "add-course") return addCourse(data);
+  if (form.dataset.form === "update-course") return updateCourse(form, data);
+  if (form.dataset.form === "import-course") return importCourse(form, data);
   if (form.dataset.form === "add-unit") return addUnit(form, data);
   if (form.dataset.form === "update-unit") return updateUnit(form, data);
   if (form.dataset.form === "import-unit") return importUnit(form, data);
@@ -1383,6 +1412,40 @@ async function addCourse(data) {
   return show("success", "הקורס נוסף. עכשיו אפשר להוסיף לו יחידות.");
 }
 
+async function updateCourse(form, data) {
+  const course = getCourse(form.dataset.courseId);
+  if (!course) return show("error", "הקורס לא נמצא.");
+
+  const title = String(data.get("title") || "").trim();
+  if (!title) return show("error", "חובה להזין שם קורס.");
+
+  course.title = title;
+  course.subject = String(data.get("subject") || "").trim();
+  course.description = String(data.get("description") || "").trim();
+
+  saveStorage(STORAGE.courses, state.courses);
+  return show("success", "פרטי הקורס נשמרו.");
+}
+
+async function importCourse(form, data) {
+  const course = getCourse(form.dataset.courseId);
+  if (!course) return show("error", "הקורס לא נמצא.");
+
+  const file = data.get("courseFile");
+  const pasted = String(data.get("courseJson") || "").trim();
+  if ((!file || !file.size) && !pasted) return show("error", "לא נבחר קובץ ולא הודבק JSON.");
+
+  try {
+    const payload = JSON.parse(file && file.size ? await file.text() : pasted);
+    const imported = normalizeImportedCourse(payload, course.id);
+    Object.assign(course, imported);
+    saveStorage(STORAGE.courses, state.courses);
+    return show("success", `הקורס "${course.title}" עודכן.`);
+  } catch (error) {
+    return show("error", `ייבוא הקורס נכשל: ${error.message}`);
+  }
+}
+
 function deleteCourse(id) {
   const course = state.courses.find((item) => item.id === id);
   if (!course || !confirm(`למחוק את הקורס ${course.title}?`)) return;
@@ -1483,6 +1546,35 @@ function normalizeImportedUnit(payload) {
   validateQuestions(unit.exercises, "משחק");
   validateQuestions(unit.tests, "מבחן");
   return unit;
+}
+
+function normalizeImportedCourse(payload, existingCourseId) {
+  const raw = payload.course || payload;
+  const title = String(raw.title || "").trim();
+  if (!title) throw new Error("חסר שם קורס");
+  if (!Array.isArray(raw.units)) throw new Error("חסרה רשימת יחידות");
+
+  const units = raw.units.map((unit, index) => normalizeImportedUnit({ ...unit, id: unit.id || slugify(unit.title || "") || `unit-${Date.now()}-${index}` }));
+  const seenIds = new Set();
+  for (const unit of units) {
+    let baseId = unit.id;
+    let nextId = baseId;
+    let count = 2;
+    while (seenIds.has(nextId)) {
+      nextId = `${baseId}-${count}`;
+      count += 1;
+    }
+    unit.id = nextId;
+    seenIds.add(nextId);
+  }
+
+  return normalizeCourse({
+    id: existingCourseId,
+    title,
+    subject: String(raw.subject || "").trim(),
+    description: String(raw.description || "").trim(),
+    units,
+  });
 }
 
 async function readQuestionArray(file, textValue, label) {
