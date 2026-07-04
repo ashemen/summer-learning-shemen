@@ -407,7 +407,7 @@ async function renderScreen() {
   if (state.screen === "studentSelect") return renderStudentSelect();
   if (state.screen === "studentCourse") return await renderStudentCourse();
   if (state.screen === "adminAuth") return renderAdminAuth();
-  if (state.screen === "admin") return renderAdmin();
+  if (state.screen === "admin") return state.adminAuthenticated ? renderAdmin() : renderAdminAuth();
   return renderHome();
 }
 
@@ -793,7 +793,10 @@ function renderAdmin() {
           <h1>לוח אבא</h1>
           <p class="muted">ניהול תלמידות, קורסים, יחידות, תוכן וציונים.</p>
         </div>
-        <button class="secondary" data-action="admin-tab" data-tab="password">החלפת סיסמה</button>
+        <div class="row-actions">
+          <button class="secondary" data-action="admin-tab" data-tab="password">החלפת סיסמה</button>
+          <button class="danger" data-action="admin-logout">יציאה מאיזור אבא</button>
+        </div>
       </div>
       <div class="tabs">
         ${tabs
@@ -1120,6 +1123,14 @@ function renderPasswordChange() {
   `;
 }
 
+async function logoutAdmin() {
+  state.adminAuthenticated = false;
+  state.adminTab = "students";
+  state.screen = "home";
+  state.message = { type: "success", text: "יצאת מאיזור אבא. כדי לחזור לניהול צריך להזין סיסמה שוב." };
+  await render();
+}
+
 async function handleClick(event) {
   const target = event.target.closest("[data-action]");
   if (!target) return;
@@ -1134,10 +1145,7 @@ async function handleClick(event) {
     await render();
   }
   if (action === "admin-logout") {
-    state.adminAuthenticated = false;
-    state.screen = "home";
-    state.message = { type: "success", text: "יצאת מאיזור אבא." };
-    await render();
+    return await logoutAdmin();
   }
   if (action === "select-student") {
     state.selectedStudentId = target.dataset.id;
