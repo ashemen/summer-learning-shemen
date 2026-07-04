@@ -1,0 +1,28 @@
+[
+  {
+    "id": "ex-1",
+    "type": "multiple_choice",
+    "prompt": "מהו חצי של 10?",
+    "choices": ["2", "5", "8", "10"],
+    "correctAnswer": "5",
+    "points": 10,
+    "explanation": "חצי פירושו לחלק לשני חלקים שווים. 10 לחלק ל-2 שווה 5."
+  },
+  {
+    "id": "ex-2",
+    "type": "short_answer",
+    "prompt": "מהו רבע של 12?",
+    "correctAnswer": "3",
+    "points": 10,
+    "explanation": "רבע פירושו לחלק ל-4. 12 לחלק ל-4 שווה 3."
+  },
+  {
+    "id": "ex-3",
+    "type": "multiple_choice",
+    "prompt": "בשבר 3/5, מהו המונה?",
+    "choices": ["3", "5", "8", "2"],
+    "correctAnswer": "3",
+    "points": 10,
+    "explanation": "המונה הוא המספר העליון בשבר."
+  }
+]

@@ -1,0 +1,14 @@
+Create a local static web app for a Hebrew summer learning program.
+
+Requirements:
+- Files: index.html, styles.css, app.js, data/*.json, content/sample-course/*.md/json.
+- UI language: Hebrew.
+- HTML must use lang="he" and dir="rtl".
+- No backend, no build step.
+- Use localStorage for runtime state.
+- Seed with one admin setup flow, two sample students, and one sample course.
+- The first screen should let the user choose: student area or admin area.
+- Keep the design polished, readable, child-friendly, and simple.
+- Do not use external paid services.
+
+After implementation, explain how to open the app locally.

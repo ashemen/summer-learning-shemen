@@ -1,0 +1,16 @@
+Implement the student experience.
+
+Requirements:
+- Student selects their name.
+- Student sees only assigned courses.
+- Each course has four tabs:
+  - הסבר
+  - תרגול
+  - מבחן
+  - ציונים
+- Render Markdown explanations.
+- Render exercises interactively.
+- Render tests interactively.
+- Automatically score answers.
+- Save progress in localStorage.
+- Show feedback in Hebrew after submission.

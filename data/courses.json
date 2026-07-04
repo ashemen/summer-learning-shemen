@@ -1,0 +1,17 @@
+[
+  {
+    "id": "math-summer",
+    "title": "חשבון לקיץ",
+    "subject": "מתמטיקה",
+    "description": "חזרה קצרה ונעימה על שברים, חיבור וחשיבה מסודרת.",
+    "lessons": [
+      {
+        "id": "fractions-intro",
+        "title": "מבוא לשברים",
+        "contentFile": "content/sample-course/fractions.md"
+      }
+    ],
+    "exercisesFile": "content/sample-course/exercises.json",
+    "testsFile": "content/sample-course/tests.json"
+  }
+]

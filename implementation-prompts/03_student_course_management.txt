@@ -1,0 +1,10 @@
+Implement admin management screens.
+
+Requirements:
+- Admin can add and remove students.
+- Admin can add courses.
+- Admin can assign or unassign courses per student.
+- Store student/course assignments in localStorage, seeded from JSON defaults.
+- Student names, course names, and UI labels must support Hebrew.
+- Add confirmation before deleting a student or course.
+- Show empty states in Hebrew.

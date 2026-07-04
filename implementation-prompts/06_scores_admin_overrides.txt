@@ -1,0 +1,13 @@
+Implement score review and override.
+
+Requirements:
+- Admin can view each student's course progress.
+- Admin can see exercise and test attempts.
+- Admin can override a score manually.
+- Manual override must store:
+  - overridden score
+  - original score
+  - admin note
+  - timestamp
+- Student score overview should show current score after override.
+- Use Hebrew labels throughout.

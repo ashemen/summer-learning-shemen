@@ -1,0 +1,6 @@
+{
+  "passwordSalt": "",
+  "passwordHash": "",
+  "recoveryUpdatedAt": "",
+  "recoveryNote": "Codex can reset the local admin password by running scripts/reset_admin_password.py. The app imports this file when recoveryUpdatedAt is newer than the browser copy."
+}

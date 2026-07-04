@@ -1,0 +1,8 @@
+Add simple backup and content-management tools.
+
+Requirements:
+- Admin can export all localStorage data as a JSON backup file.
+- Admin can import a previous backup JSON file.
+- Validate imported backup shape before applying it.
+- Admin can view the expected AI content format.
+- Include sample prompts in README for generating new Hebrew lessons, exercises, and tests.

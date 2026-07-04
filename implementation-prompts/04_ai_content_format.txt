@@ -1,0 +1,18 @@
+Implement the learning-content format.
+
+Requirements:
+- Explanatory lessons are Markdown files.
+- Exercises and tests are JSON files.
+- courses.json links lessons, exercises, and tests.
+- app.js loads content from JSON and Markdown files using fetch.
+- Add sample Hebrew content for one course.
+- Add a README section describing the exact AI generation format.
+
+Exercise/test JSON shape:
+- id
+- type: "multiple_choice" or "short_answer"
+- prompt
+- choices, only for multiple choice
+- correctAnswer
+- points
+- explanation

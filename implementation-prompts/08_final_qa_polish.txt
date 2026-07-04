@@ -1,0 +1,13 @@
+Perform final QA and polish.
+
+Requirements:
+- Check Hebrew RTL layout on desktop and mobile width.
+- Verify admin setup, login, logout, password change, and reset_admin_password.py.
+- Verify add/remove students.
+- Verify course assignment.
+- Verify lesson Markdown renders.
+- Verify exercise and test scoring.
+- Verify admin score override.
+- Verify export/import.
+- Fix visual overflow, untranslated text, broken paths, and console errors.
+- Provide final usage instructions.
