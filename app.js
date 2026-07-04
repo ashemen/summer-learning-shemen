@@ -1,8 +1,42 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+  doc,
+  getDoc,
+  getFirestore,
+  onSnapshot,
+  serverTimestamp,
+  setDoc,
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCCa8Xx6ijIL4Q9DeJhaDejmhBR6nTRp7I",
+  authDomain: "summer-learning-shemen.firebaseapp.com",
+  projectId: "summer-learning-shemen",
+  storageBucket: "summer-learning-shemen.firebasestorage.app",
+  messagingSenderId: "542719937586",
+  appId: "1:542719937586:web:6ffd4a3dcd4a6e2e0c402b",
+  measurementId: "G-2KBP291PBD",
+};
+
 const STORAGE = {
   students: "hebrewSummer.students",
   courses: "hebrewSummer.courses",
   progress: "hebrewSummer.progress",
   admin: "hebrewSummer.adminSettings",
+};
+
+const CLOUD_COLLECTION = "hebrewSummer";
+const CLOUD_DOCS = {
+  [STORAGE.students]: "students",
+  [STORAGE.courses]: "courses",
+  [STORAGE.progress]: "progress",
+  [STORAGE.admin]: "adminSettings",
+};
+const STORAGE_TO_STATE = {
+  [STORAGE.students]: "students",
+  [STORAGE.courses]: "courses",
+  [STORAGE.progress]: "progress",
+  [STORAGE.admin]: "adminSettings",
 };
 
 const app = document.querySelector("#app");
@@ -20,9 +54,15 @@ const state = {
   selectedUnitId: "",
   studentTab: "lesson",
   message: null,
+  storageMode: "loading",
+  storageError: "",
 };
 
 const contentCache = new Map();
+let firestoreDb = null;
+let cloudStorageAvailable = false;
+let cloudSubscriptionsStarted = false;
+const cloudSaveTimers = new Map();
 
 document.addEventListener("DOMContentLoaded", init);
 document.addEventListener("click", handleClick);
@@ -46,19 +86,24 @@ async function loadInitialData() {
     fetchJson(`data/admin-settings.json?ts=${Date.now()}`, {}),
   ]);
 
-  const storedStudents = readStorage(STORAGE.students, null);
-  const storedCourses = readStorage(STORAGE.courses, null);
-  state.students = mergeSeedStudents(seedStudents, storedStudents);
-  state.courses = mergeSeedCourses(seedCourses, storedCourses);
-  state.progress = readStorage(STORAGE.progress, seedProgress);
+  const loadedState = await loadStoredState({
+    students: seedStudents,
+    courses: seedCourses.map(normalizeCourse),
+    progress: seedProgress,
+    adminSettings: fileAdmin,
+  });
 
-  const localAdmin = readStorage(STORAGE.admin, {});
-  if (shouldApplyRecovery(localAdmin, fileAdmin)) {
+  state.students = mergeSeedStudents(seedStudents, loadedState.students);
+  state.courses = mergeSeedCourses(seedCourses, loadedState.courses);
+  state.progress = loadedState.progress;
+  state.adminSettings = loadedState.adminSettings || {};
+
+  if (shouldApplyRecovery(state.adminSettings, fileAdmin)) {
     state.adminSettings = fileAdmin;
     saveStorage(STORAGE.admin, state.adminSettings);
-  } else {
-    state.adminSettings = Object.keys(localAdmin).length ? localAdmin : fileAdmin;
   }
+  saveStorage(STORAGE.students, state.students);
+  saveStorage(STORAGE.courses, state.courses);
 }
 
 function mergeSeedStudents(seedStudents, storedStudents) {
@@ -79,14 +124,40 @@ function mergeSeedCourses(seedCourses, storedCourses) {
   if (!Array.isArray(storedCourses)) return seedCourses.map(normalizeCourse);
   const merged = storedCourses.map(normalizeCourse);
   for (const seedCourse of seedCourses.map(normalizeCourse)) {
-    const existing = merged.find((course) => course.id === seedCourse.id);
+    const existing = merged.find((course) => course.id === seedCourse.id) || merged.find((course) => course.title === seedCourse.title);
     if (!existing) {
       merged.push(seedCourse);
-    } else if (!existing.units?.length) {
-      existing.units = seedCourse.units;
+    } else {
+      existing.subject = existing.subject || seedCourse.subject;
+      existing.description = existing.description || seedCourse.description;
+      existing.units = mergeSeedUnits(seedCourse.units || [], existing.units || []);
     }
   }
   return merged;
+}
+
+function mergeSeedUnits(seedUnits, storedUnits) {
+  const merged = storedUnits.map((unit, index) => normalizeUnit(unit, index));
+  for (const seedUnit of seedUnits.map((unit, index) => normalizeUnit(unit, index))) {
+    const existing = merged.find((unit) => unit.id === seedUnit.id) || merged.find((unit) => unit.title === seedUnit.title);
+    if (!existing) {
+      merged.push(seedUnit);
+    } else if (!unitHasAnyContent(existing)) {
+      Object.assign(existing, seedUnit);
+    }
+  }
+  return merged;
+}
+
+function unitHasAnyContent(unit) {
+  return Boolean(
+    unit.lessonFile ||
+      unit.lessonMarkdown ||
+      unit.exercisesFile ||
+      unit.exercises?.length ||
+      unit.testsFile ||
+      unit.tests?.length
+  );
 }
 
 function shouldApplyRecovery(localAdmin, fileAdmin) {
@@ -116,7 +187,67 @@ async function fetchText(path) {
   return text;
 }
 
-function readStorage(key, fallback) {
+async function loadStoredState(seedState) {
+  const localSnapshot = readLocalSnapshot(seedState);
+  try {
+    const firebaseApp = initializeApp(firebaseConfig);
+    firestoreDb = getFirestore(firebaseApp);
+
+    const remoteEntries = await Promise.all(
+      Object.entries(CLOUD_DOCS).map(async ([key, docId]) => {
+        const snapshot = await getDoc(doc(firestoreDb, CLOUD_COLLECTION, docId));
+        return [key, snapshot.exists() ? snapshot.data().value : undefined];
+      })
+    );
+
+    const remoteState = {};
+    let hasRemoteData = false;
+    for (const [key, value] of remoteEntries) {
+      if (value !== undefined) {
+        remoteState[STORAGE_TO_STATE[key]] = value;
+        hasRemoteData = true;
+      }
+    }
+
+    const initialState = hasRemoteData
+      ? { ...seedState, ...remoteState }
+      : localSnapshot.hasAnyLocalData
+        ? localSnapshot.data
+        : seedState;
+
+    cloudStorageAvailable = true;
+    state.storageMode = "cloud";
+    state.storageError = "";
+
+    if (!hasRemoteData) {
+      await writeAllToCloud(initialState);
+    } else {
+      await writeMissingCloudDocs(initialState, remoteState);
+    }
+
+    startCloudSubscriptions();
+    return initialState;
+  } catch (error) {
+    console.warn("Firebase storage is unavailable; using this browser only.", error);
+    cloudStorageAvailable = false;
+    state.storageMode = "local";
+    state.storageError = error?.message || "Firebase storage is unavailable.";
+    return localSnapshot.data;
+  }
+}
+
+function readLocalSnapshot(seedState) {
+  const data = { ...seedState };
+  let hasAnyLocalData = false;
+  for (const [key, stateKey] of Object.entries(STORAGE_TO_STATE)) {
+    const localValue = readLocalStorage(key, seedState[stateKey]);
+    if (localStorage.getItem(key)) hasAnyLocalData = true;
+    data[stateKey] = stateKey === "courses" && Array.isArray(localValue) ? localValue.map(normalizeCourse) : localValue;
+  }
+  return { data, hasAnyLocalData };
+}
+
+function readLocalStorage(key, fallback) {
   try {
     const value = localStorage.getItem(key);
     return value ? JSON.parse(value) : fallback;
@@ -126,14 +257,93 @@ function readStorage(key, fallback) {
 }
 
 function saveStorage(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
+  if (cloudStorageAvailable && firestoreDb) {
+    queueCloudSave(key, value);
+    return undefined;
+  }
+  saveLocalStorage(key, value);
+  return undefined;
 }
 
 function saveAll() {
-  saveStorage(STORAGE.students, state.students);
-  saveStorage(STORAGE.courses, state.courses);
-  saveStorage(STORAGE.progress, state.progress);
-  saveStorage(STORAGE.admin, state.adminSettings);
+  if (cloudStorageAvailable && firestoreDb) {
+    return writeAllToCloud({
+      students: state.students,
+      courses: state.courses,
+      progress: state.progress,
+      adminSettings: state.adminSettings,
+    });
+  }
+  saveLocalStorage(STORAGE.students, state.students);
+  saveLocalStorage(STORAGE.courses, state.courses);
+  saveLocalStorage(STORAGE.progress, state.progress);
+  saveLocalStorage(STORAGE.admin, state.adminSettings);
+  return Promise.resolve();
+}
+
+function saveLocalStorage(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function queueCloudSave(key, value) {
+  window.clearTimeout(cloudSaveTimers.get(key));
+  cloudSaveTimers.set(
+    key,
+    window.setTimeout(() => {
+      writeCloudValue(key, value).catch((error) => {
+        console.error("Could not save to Firebase. Keeping a browser fallback copy.", error);
+        saveLocalStorage(key, value);
+        state.storageMode = "local";
+        state.storageError = error?.message || "Could not save to Firebase.";
+      });
+    }, 150)
+  );
+}
+
+async function writeCloudValue(key, value) {
+  const docId = CLOUD_DOCS[key];
+  if (!docId || !firestoreDb) return;
+  await setDoc(
+    doc(firestoreDb, CLOUD_COLLECTION, docId),
+    { value, updatedAt: serverTimestamp() },
+    { merge: true }
+  );
+}
+
+function writeAllToCloud(nextState) {
+  return Promise.all(
+    Object.entries(STORAGE_TO_STATE).map(([key, stateKey]) => writeCloudValue(key, nextState[stateKey]))
+  );
+}
+
+function writeMissingCloudDocs(nextState, remoteState) {
+  return Promise.all(
+    Object.entries(STORAGE_TO_STATE)
+      .filter(([, stateKey]) => remoteState[stateKey] === undefined)
+      .map(([key, stateKey]) => writeCloudValue(key, nextState[stateKey]))
+  );
+}
+
+function startCloudSubscriptions() {
+  if (cloudSubscriptionsStarted || !firestoreDb) return;
+  cloudSubscriptionsStarted = true;
+  for (const [key, stateKey] of Object.entries(STORAGE_TO_STATE)) {
+    onSnapshot(
+      doc(firestoreDb, CLOUD_COLLECTION, CLOUD_DOCS[key]),
+      async (snapshot) => {
+        if (!snapshot.exists()) return;
+        const nextValue = snapshot.data().value;
+        if (nextValue === undefined) return;
+        state[stateKey] = stateKey === "courses" ? nextValue.map(normalizeCourse) : nextValue;
+        if (app.innerHTML) await render();
+      },
+      (error) => {
+        console.error("Firebase live sync stopped for", stateKey, error);
+        state.storageMode = "local";
+        state.storageError = error?.message || "Firebase live sync stopped.";
+      }
+    );
+  }
 }
 
 function normalizeCourse(course) {
@@ -174,12 +384,23 @@ async function render() {
     <div class="layout">
       ${renderSideNav()}
       <main class="main">
+        ${renderStorageBanner()}
         ${state.message ? renderMessage(state.message) : ""}
         ${content}
       </main>
     </div>
   `;
   state.message = null;
+}
+
+function renderStorageBanner() {
+  if (state.storageMode !== "local") return "";
+  return `
+    <div class="message warning">
+      Firebase storage is not available right now. Changes are being kept only in this browser until Firestore is enabled.
+      ${state.storageError ? `<small>${escapeHtml(state.storageError)}</small>` : ""}
+    </div>
+  `;
 }
 
 async function renderScreen() {
@@ -1316,7 +1537,7 @@ async function importBackup(data) {
     state.courses = backup.courses.map(normalizeCourse);
     state.progress = backup.progress;
     state.adminSettings = backup.adminSettings;
-    saveAll();
+    await saveAll();
     return show("success", "הגיבוי יובא בהצלחה.");
   } catch {
     return show("error", "קובץ הגיבוי אינו תקין.");
