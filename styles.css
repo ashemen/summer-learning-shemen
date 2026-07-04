@@ -333,6 +333,10 @@ button {
   align-items: end;
 }
 
+.recovery-form {
+  margin-top: 12px;
+}
+
 label {
   display: grid;
   gap: 6px;

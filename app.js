@@ -32,6 +32,8 @@ const CLOUD_DOCS = {
   [STORAGE.progress]: "progress",
   [STORAGE.admin]: "adminSettings",
 };
+const ADMIN_RECOVERY_SALT = "summer-learning-admin-recovery";
+const ADMIN_RECOVERY_ANSWER_HASH = "3d5c2f6681c5d90f5daa775fac47d4c6c363059ecaaf748765627bcdd2eefd8e";
 const STORAGE_TO_STATE = {
   [STORAGE.students]: "students",
   [STORAGE.courses]: "courses",
@@ -47,6 +49,7 @@ const state = {
   progress: { attempts: {} },
   adminSettings: {},
   adminAuthenticated: false,
+  adminRecoveryOpen: false,
   screen: "home",
   adminTab: "students",
   selectedStudentId: "",
@@ -762,7 +765,26 @@ function renderAdminAuth() {
                 <input type="password" name="password" required autocomplete="current-password" />
               </label>
               <button class="primary" type="submit">כניסה</button>
-            </form>`
+            </form>
+            <button class="ghost" type="button" data-action="toggle-password-recovery">
+              Forgot password?
+            </button>
+            ${
+              state.adminRecoveryOpen
+                ? `<form id="admin-recovery" class="form-grid recovery-form">
+                    <label>What is your SSN?
+                      <input name="securityAnswer" inputmode="numeric" autocomplete="off" required />
+                    </label>
+                    <label>Choose a new password
+                      <input type="password" name="password" required minlength="6" autocomplete="new-password" />
+                    </label>
+                    <label>Confirm new password
+                      <input type="password" name="confirm" required minlength="6" autocomplete="new-password" />
+                    </label>
+                    <button class="primary" type="submit">Reset password</button>
+                  </form>`
+                : ""
+            }`
           : `<form id="admin-setup" class="form-grid">
               <label>בחרי סיסמה
                 <input type="password" name="password" required minlength="6" autocomplete="new-password" />
@@ -773,7 +795,6 @@ function renderAdminAuth() {
               <button class="primary" type="submit">שמירת סיסמה</button>
             </form>`
       }
-      <p class="muted">אם הסיסמה נשכחה, אפשר לאפס אותה דרך Codex באמצעות <code>python scripts/reset_admin_password.py "סיסמה חדשה"</code>.</p>
     </section>
   `;
 }
@@ -1125,6 +1146,7 @@ function renderPasswordChange() {
 
 async function logoutAdmin() {
   state.adminAuthenticated = false;
+  state.adminRecoveryOpen = false;
   state.adminTab = "students";
   state.screen = "home";
   state.message = { type: "success", text: "יצאת מאיזור אבא. כדי לחזור לניהול צריך להזין סיסמה שוב." };
@@ -1146,6 +1168,10 @@ async function handleClick(event) {
   }
   if (action === "admin-logout") {
     return await logoutAdmin();
+  }
+  if (action === "toggle-password-recovery") {
+    state.adminRecoveryOpen = !state.adminRecoveryOpen;
+    await render();
   }
   if (action === "select-student") {
     state.selectedStudentId = target.dataset.id;
@@ -1198,6 +1224,7 @@ async function handleSubmit(event) {
 
   if (form.id === "admin-setup") return setupAdmin(data);
   if (form.id === "admin-login") return loginAdmin(data);
+  if (form.id === "admin-recovery") return recoverAdminPassword(data);
   if (form.id === "change-password") return changePassword(data);
   if (form.id === "add-student") return addStudent(data);
   if (form.id === "add-course") return addCourse(data);
@@ -1233,8 +1260,9 @@ async function setupAdmin(data) {
   if (password !== confirm) return show("error", "אימות הסיסמה אינו תואם.");
   state.adminSettings = await createPasswordSettings(password);
   state.adminAuthenticated = true;
+  state.adminRecoveryOpen = false;
   state.screen = "admin";
-  saveStorage(STORAGE.admin, state.adminSettings);
+  await saveAdminSettings();
   return show("success", "סיסמת אבא נשמרה בהצלחה.");
 }
 
@@ -1242,6 +1270,7 @@ async function loginAdmin(data) {
   const ok = await verifyPassword(data.get("password") || "");
   if (!ok) return show("error", "הסיסמה שגויה.");
   state.adminAuthenticated = true;
+  state.adminRecoveryOpen = false;
   state.screen = "admin";
   return show("success", "ברוכה הבאה לאיזור אבא.");
 }
@@ -1254,8 +1283,41 @@ async function changePassword(data) {
   if (password.length < 6) return show("error", "הסיסמה החדשה חייבת להכיל לפחות 6 תווים.");
   if (password !== confirm) return show("error", "אימות הסיסמה החדשה אינו תואם.");
   state.adminSettings = await createPasswordSettings(password);
-  saveStorage(STORAGE.admin, state.adminSettings);
+  await saveAdminSettings();
   return show("success", "הסיסמה עודכנה בהצלחה.");
+}
+
+async function recoverAdminPassword(data) {
+  const answer = String(data.get("securityAnswer") || "").trim();
+  const password = data.get("password") || "";
+  const confirm = data.get("confirm") || "";
+  const answerHash = await sha256Hex(`${ADMIN_RECOVERY_SALT}:${answer}`);
+
+  if (answerHash !== ADMIN_RECOVERY_ANSWER_HASH) return show("error", "Security answer is incorrect.");
+  if (password.length < 6) return show("error", "Password must contain at least 6 characters.");
+  if (password !== confirm) return show("error", "Password confirmation does not match.");
+
+  state.adminSettings = await createPasswordSettings(password);
+  state.adminAuthenticated = true;
+  state.adminRecoveryOpen = false;
+  state.screen = "admin";
+  await saveAdminSettings();
+  return show("success", "Password reset successfully.");
+}
+
+async function saveAdminSettings() {
+  if (cloudStorageAvailable && firestoreDb) {
+    try {
+      await writeCloudValue(STORAGE.admin, state.adminSettings);
+      saveLocalStorage(STORAGE.admin, state.adminSettings);
+      return;
+    } catch (error) {
+      console.error("Could not save admin settings to Firebase. Keeping a browser fallback copy.", error);
+      state.storageMode = "local";
+      state.storageError = error?.message || "Could not save admin settings to Firebase.";
+    }
+  }
+  saveLocalStorage(STORAGE.admin, state.adminSettings);
 }
 
 async function createPasswordSettings(password) {
