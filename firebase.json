@@ -14,7 +14,7 @@
     ],
     "headers": [
       {
-        "source": "**/*.@(json|md)",
+        "source": "**",
         "headers": [
           {
             "key": "Cache-Control",
