@@ -150,3 +150,19 @@ python scripts/upsert_course_unit.py --course-id math-summer --unit-json generat
 ## גיבוי ושחזור
 
 באיזור אבא אפשר לייצא קובץ גיבוי JSON הכולל תלמידות, קורסים, יחידות, התקדמות והגדרות אבא. אפשר לייבא גיבוי קודם כקובץ או בהדבקת JSON.
+## Firebase storage
+
+The deployed app stores shared runtime data in Cloud Firestore under the `hebrewSummer` collection:
+
+- `students`
+- `courses`
+- `progress`
+- `adminSettings`
+
+Firebase Hosting still serves the static app files. Firestore is the source of truth for app changes across browsers and machines. If Firestore is unavailable, the app shows a warning and falls back to this browser only.
+
+Deploy hosting and Firestore rules with:
+
+```bash
+firebase deploy --project summer-learning-shemen
+```
