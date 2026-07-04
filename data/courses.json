@@ -1,21 +1,5 @@
 [
   {
-    "id": "math-summer",
-    "title": "חשבון לקיץ",
-    "subject": "מתמטיקה",
-    "description": "חזרה קצרה ונעימה על שברים, חיבור וחשיבה מסודרת.",
-    "units": [
-      {
-        "id": "fractions-intro",
-        "title": "מבוא לשברים",
-        "description": "היכרות עם מונה, מכנה וחלקים מתוך שלם.",
-        "lessonFile": "content/sample-course/fractions.md",
-        "exercisesFile": "content/sample-course/exercises.json",
-        "testsFile": "content/sample-course/tests.json"
-      }
-    ]
-  },
-  {
     "id": "reaya-decimals",
     "title": "חשבון ז",
     "subject": "חשבון",

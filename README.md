@@ -40,18 +40,18 @@ python scripts/reset_admin_password.py "סיסמה חדשה"
 
 ```json
 {
-  "id": "math-summer",
-  "title": "חשבון לקיץ",
-  "subject": "מתמטיקה",
+  "id": "course-id",
+  "title": "שם הקורס",
+  "subject": "תחום הלימוד",
   "description": "תיאור קצר של הקורס",
   "units": [
     {
-      "id": "fractions-intro",
-      "title": "מבוא לשברים",
-      "description": "היכרות עם שברים",
-      "lessonFile": "content/sample-course/fractions.md",
-      "exercisesFile": "content/sample-course/exercises.json",
-      "testsFile": "content/sample-course/tests.json"
+      "id": "unit-id",
+      "title": "שם היחידה",
+      "description": "תיאור קצר של היחידה",
+      "lessonFile": "content/course-folder/unit.md",
+      "exercisesFile": "content/course-folder/exercises.json",
+      "testsFile": "content/course-folder/test.json"
     }
   ]
 }
@@ -118,7 +118,7 @@ python scripts/reset_admin_password.py "סיסמה חדשה"
 Codex יכול ליצור קובץ JSON של יחידה ואז להריץ:
 
 ```bash
-python scripts/upsert_course_unit.py --course-id math-summer --unit-json generated-unit.json
+python scripts/upsert_course_unit.py --course-id course-id --unit-json generated-unit.json
 ```
 
 הסקריפט מוסיף את היחידה לקורס או מחליף יחידה קיימת עם אותו `id`. לאחר מכן צריך להעלות לגיט ולפרוס ל-Firebase.

@@ -96,8 +96,8 @@ async function loadInitialData() {
     adminSettings: fileAdmin,
   });
 
-  state.students = mergeSeedStudents(seedStudents, loadedState.students);
-  state.courses = mergeSeedCourses(seedCourses, loadedState.courses);
+  state.students = normalizeStudents(loadedState.students);
+  state.courses = normalizeCourses(loadedState.courses);
   state.progress = loadedState.progress;
   state.adminSettings = loadedState.adminSettings || {};
 
@@ -109,58 +109,14 @@ async function loadInitialData() {
   saveStorage(STORAGE.courses, state.courses);
 }
 
-function mergeSeedStudents(seedStudents, storedStudents) {
-  if (!Array.isArray(storedStudents)) return seedStudents;
-  const merged = storedStudents.map((student) => ({ ...student, courseIds: student.courseIds || [] }));
-  for (const seedStudent of seedStudents) {
-    const existing = merged.find((student) => student.id === seedStudent.id);
-    if (!existing) {
-      merged.push(seedStudent);
-    } else {
-      existing.courseIds = Array.from(new Set([...(existing.courseIds || []), ...(seedStudent.courseIds || [])]));
-    }
-  }
-  return merged;
+function normalizeStudents(students) {
+  if (!Array.isArray(students)) return [];
+  return students.map((student) => ({ ...student, courseIds: student.courseIds || [] }));
 }
 
-function mergeSeedCourses(seedCourses, storedCourses) {
-  if (!Array.isArray(storedCourses)) return seedCourses.map(normalizeCourse);
-  const merged = storedCourses.map(normalizeCourse);
-  for (const seedCourse of seedCourses.map(normalizeCourse)) {
-    const existing = merged.find((course) => course.id === seedCourse.id) || merged.find((course) => course.title === seedCourse.title);
-    if (!existing) {
-      merged.push(seedCourse);
-    } else {
-      existing.subject = existing.subject || seedCourse.subject;
-      existing.description = existing.description || seedCourse.description;
-      existing.units = mergeSeedUnits(seedCourse.units || [], existing.units || []);
-    }
-  }
-  return merged;
-}
-
-function mergeSeedUnits(seedUnits, storedUnits) {
-  const merged = storedUnits.map((unit, index) => normalizeUnit(unit, index));
-  for (const seedUnit of seedUnits.map((unit, index) => normalizeUnit(unit, index))) {
-    const existing = merged.find((unit) => unit.id === seedUnit.id) || merged.find((unit) => unit.title === seedUnit.title);
-    if (!existing) {
-      merged.push(seedUnit);
-    } else if (!unitHasAnyContent(existing)) {
-      Object.assign(existing, seedUnit);
-    }
-  }
-  return merged;
-}
-
-function unitHasAnyContent(unit) {
-  return Boolean(
-    unit.lessonFile ||
-      unit.lessonMarkdown ||
-      unit.exercisesFile ||
-      unit.exercises?.length ||
-      unit.testsFile ||
-      unit.tests?.length
-  );
+function normalizeCourses(courses) {
+  if (!Array.isArray(courses)) return [];
+  return courses.map(normalizeCourse);
 }
 
 function shouldApplyRecovery(localAdmin, fileAdmin) {
