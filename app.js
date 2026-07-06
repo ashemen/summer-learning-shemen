@@ -114,7 +114,11 @@ async function loadInitialData() {
 
 function normalizeStudents(students) {
   if (!Array.isArray(students)) return [];
-  return students.map((student) => ({ ...student, courseIds: student.courseIds || [] }));
+  return students.map((student) => ({
+    ...student,
+    courseIds: student.courseIds || [],
+    avatarDataUrl: isStudentAvatar(student.avatarDataUrl) ? student.avatarDataUrl : "",
+  }));
 }
 
 function normalizeCourses(courses) {
@@ -402,7 +406,11 @@ function renderSideNav() {
       <button class="nav-button ${state.screen.startsWith("student") ? "active" : ""}" data-action="go" data-screen="studentSelect">אזור ליצנית קיץ <span>◐</span></button>
       ${
         student && state.screen.startsWith("student")
-          ? `<div class="nav-reward" aria-label="שקלים שנצברו">
+          ? `<div class="nav-student-card">
+              ${renderStudentAvatar(student, "nav-avatar")}
+              <strong>${escapeHtml(student.name)}</strong>
+            </div>
+            <div class="nav-reward" aria-label="שקלים שנצברו">
               <span>קופת מבחנים</span>
               <strong>${shekels} ₪</strong>
               <small>₪${TEST_REWARD_SHEKELS} לכל מבחן מושלם</small>
@@ -499,11 +507,23 @@ async function renderStudentCourse() {
   return `
     <section class="panel">
       <div class="panel-header">
-        <div>
-          <h1>שלום ${escapeHtml(student.name)}</h1>
-          <p class="muted">בחרי קורס, ואז יחידה מתוך הקורס.</p>
+        <div class="student-profile">
+          ${renderStudentAvatar(student)}
+          <div>
+            <h1>שלום ${escapeHtml(student.name)}</h1>
+            <p class="muted">בחרי קורס, ואז יחידה מתוך הקורס.</p>
+          </div>
         </div>
-        <button class="ghost" data-action="go" data-screen="studentSelect">החלפת ליצנית קיץ</button>
+        <div class="student-actions">
+          <form data-form="student-avatar" class="avatar-form">
+            <label>תמונת פנים
+              <input type="file" name="avatar" accept="image/*" required />
+            </label>
+            <button class="secondary" type="submit">שמירת תמונה</button>
+          </form>
+          ${student.avatarDataUrl ? `<button class="ghost" type="button" data-action="remove-student-avatar">מחיקת תמונה</button>` : ""}
+          <button class="ghost" data-action="go" data-screen="studentSelect">החלפת ליצנית קיץ</button>
+        </div>
       </div>
       <div class="toolbar">${courseButtons || `<span class="empty">עדיין לא הוקצו לך קורסים.</span>`}</div>
     </section>
@@ -1238,6 +1258,9 @@ async function handleClick(event) {
     state.studentTab = target.dataset.tab;
     await render();
   }
+  if (action === "remove-student-avatar") {
+    return removeStudentAvatar();
+  }
   if (action === "admin-tab") {
     state.adminTab = target.dataset.tab;
     await render();
@@ -1275,6 +1298,7 @@ async function handleSubmit(event) {
   if (form.dataset.form === "add-unit") return addUnit(form, data);
   if (form.dataset.form === "update-unit") return updateUnit(form, data);
   if (form.dataset.form === "import-unit") return importUnit(form, data);
+  if (form.dataset.form === "student-avatar") return updateStudentAvatar(data);
   if (form.dataset.form === "submit-questions") return submitQuestions(form);
   if (form.dataset.form === "override-score") return overrideScore(form, data);
   if (form.id === "import-backup") return importBackup(data);
@@ -1397,10 +1421,35 @@ async function addStudent(data) {
     id: `student-${Date.now()}`,
     name: String(data.get("name") || "").trim(),
     grade: String(data.get("grade") || "").trim(),
+    avatarDataUrl: "",
     courseIds: [],
   });
   saveStorage(STORAGE.students, state.students);
   return show("success", "התלמידה נוספה.");
+}
+
+async function updateStudentAvatar(data) {
+  const student = getSelectedStudent();
+  if (!student) return show("error", "לא נבחרה תלמידה.");
+  const file = data.get("avatar");
+  if (!file || !file.size) return show("error", "בחרי תמונה לשמירה.");
+  if (!String(file.type || "").startsWith("image/")) return show("error", "אפשר להעלות קובץ תמונה בלבד.");
+
+  try {
+    student.avatarDataUrl = await resizeAvatarImage(file);
+    saveStorage(STORAGE.students, state.students);
+    return show("success", "התמונה נשמרה.");
+  } catch {
+    return show("error", "לא הצלחנו לקרוא את התמונה. נסי קובץ אחר.");
+  }
+}
+
+async function removeStudentAvatar() {
+  const student = getSelectedStudent();
+  if (!student) return show("error", "לא נבחרה תלמידה.");
+  student.avatarDataUrl = "";
+  saveStorage(STORAGE.students, state.students);
+  return show("success", "התמונה נמחקה.");
 }
 
 function deleteStudent(id) {
@@ -1684,6 +1733,7 @@ function createCelebrationOverlay() {
 
 function launchExerciseCelebration() {
   const overlay = createCelebrationOverlay();
+  const student = getSelectedStudent();
 
   const confetti = document.createElement("div");
   confetti.className = "celebration-confetti";
@@ -1702,7 +1752,7 @@ function launchExerciseCelebration() {
 
   const clown = document.createElement("div");
   clown.className = "celebration-clown sketch-icon";
-  clown.innerHTML = renderClownIcon();
+  clown.innerHTML = renderClownIcon(student?.avatarDataUrl);
 
   overlay.append(confetti, clown);
   document.body.appendChild(overlay);
@@ -1712,10 +1762,11 @@ function launchExerciseCelebration() {
 function launchTestCelebration() {
   const overlay = createCelebrationOverlay();
   overlay.classList.add("test-celebration");
+  const student = getSelectedStudent();
 
   const clown = document.createElement("div");
   clown.className = "celebration-clown test-clown sketch-icon";
-  clown.innerHTML = renderClownIcon();
+  clown.innerHTML = renderClownIcon(student?.avatarDataUrl);
 
   overlay.appendChild(clown);
   document.body.appendChild(overlay);
@@ -1901,6 +1952,54 @@ function renderMessage(message) {
   return `<div class="message ${message.type}">${escapeHtml(message.text)}</div>`;
 }
 
+function renderStudentAvatar(student, extraClass = "") {
+  const avatar = isStudentAvatar(student?.avatarDataUrl) ? student.avatarDataUrl : "";
+  const initial = String(student?.name || "?").trim().charAt(0) || "?";
+  return `
+    <div class="student-avatar ${extraClass}">
+      ${
+        avatar
+          ? `<img src="${escapeAttr(avatar)}" alt="תמונת ${escapeAttr(student.name || "תלמידה")}" />`
+          : `<span>${escapeHtml(initial)}</span>`
+      }
+    </div>
+  `;
+}
+
+function isStudentAvatar(value) {
+  return typeof value === "string" && /^data:image\/(png|jpeg|jpg|webp);base64,/i.test(value);
+}
+
+function resizeAvatarImage(file) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    const url = URL.createObjectURL(file);
+    image.onload = () => {
+      try {
+        const size = 220;
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const context = canvas.getContext("2d");
+        const sourceSize = Math.min(image.naturalWidth, image.naturalHeight);
+        const sourceX = (image.naturalWidth - sourceSize) / 2;
+        const sourceY = (image.naturalHeight - sourceSize) / 2;
+        context.drawImage(image, sourceX, sourceY, sourceSize, sourceSize, 0, 0, size, size);
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL("image/jpeg", 0.84));
+      } catch (error) {
+        URL.revokeObjectURL(url);
+        reject(error);
+      }
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Could not load image"));
+    };
+    image.src = url;
+  });
+}
+
 function renderDadIcon() {
   return `
     <svg viewBox="0 0 96 96" role="img" aria-label="אבא">
@@ -1920,7 +2019,18 @@ function renderDadIcon() {
   `;
 }
 
-function renderClownIcon() {
+function renderClownIcon(avatarDataUrl = "") {
+  const avatar = isStudentAvatar(avatarDataUrl) ? avatarDataUrl : "";
+  const faceMarkup = avatar
+    ? `
+      <image class="student-face-image" href="${escapeAttr(avatar)}" x="29" y="31" width="40" height="40" preserveAspectRatio="xMidYMid slice" />
+      <circle class="sketch-line no-fill" cx="49" cy="52" r="21" />
+      <circle class="sketch-fill coral" cx="49" cy="53" r="5" />
+    `
+    : `
+      <circle class="sketch-fill coral" cx="49" cy="53" r="6" />
+      <path class="sketch-line" d="M38 44c3-3 8-3 11 0M54 44c3-3 8-3 11 0M38 64c7 7 15 7 22 0" />
+    `;
   return `
     <svg viewBox="0 0 96 96" role="img" aria-label="ליצנית קיץ">
       <path class="sketch-fill soft-coral" d="M23 48c0-18 11-30 26-30s25 12 25 30c0 20-11 34-25 34S23 68 23 48z" />
@@ -1929,8 +2039,7 @@ function renderClownIcon() {
       <path class="sketch-line" d="M35 18 48 5l13 13M38 19c7 3 14 3 21 0" />
       <path class="sketch-line" d="M25 44c-9-5-15 3-14 12 1 8 8 12 15 8M73 44c9-5 15 3 14 12-1 8-8 12-15 8" />
       <path class="sketch-line" d="M18 43c-6-5-3-13 5-13M78 43c6-5 3-13-5-13" />
-      <circle class="sketch-fill coral" cx="49" cy="53" r="6" />
-      <path class="sketch-line" d="M38 44c3-3 8-3 11 0M54 44c3-3 8-3 11 0M38 64c7 7 15 7 22 0" />
+      ${faceMarkup}
       <path class="sketch-line" d="M31 80c6 9 11 9 17 1 6 8 12 8 18-1" />
       <path class="sketch-fill teal" d="M35 78c4 8 8 8 13 1 5 7 9 7 14-1-8 3-18 3-27 0z" />
       <path class="sketch-line" d="M30 30c5-8 14-11 19-11s15 3 19 11" />
