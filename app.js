@@ -1596,15 +1596,49 @@ async function submitQuestions(form) {
     submittedAt: new Date().toISOString(),
   });
   saveStorage(STORAGE.progress, state.progress);
+  const perfectSubmission = questions.length > 0 && correctCount === questions.length;
   if (kind === "exercises") {
     const fullCode = questions.map((question, index) => getGameReward(question, index)).join("");
     const message =
-      correctCount === questions.length
+      perfectSubmission
         ? `כל הכבוד! פתחת את כל הקוד: ${fullCode}`
         : `המשחק נשמר. פתחת ${correctCount}/${questions.length} חלקי קוד.`;
-    return show("success", message);
+    await show("success", message);
+    if (perfectSubmission) launchCelebration();
+    return;
   }
-  return show("success", `ההגשה נשמרה. הציון: ${score}/${total}`);
+  await show("success", `ההגשה נשמרה. הציון: ${score}/${total}`);
+  if (perfectSubmission) launchCelebration();
+}
+
+function launchCelebration() {
+  document.querySelector(".celebration-overlay")?.remove();
+  const overlay = document.createElement("div");
+  overlay.className = "celebration-overlay";
+  overlay.setAttribute("aria-hidden", "true");
+
+  const confetti = document.createElement("div");
+  confetti.className = "celebration-confetti";
+  const colors = ["#f66752", "#006477", "#ffd166", "#2fbf9f", "#7a5cff", "#ff8fb3"];
+  for (let index = 0; index < 72; index += 1) {
+    const piece = document.createElement("span");
+    const direction = Math.random() > 0.5 ? 1 : -1;
+    piece.style.setProperty("--x", `${Math.random() * 100}vw`);
+    piece.style.setProperty("--delay", `${Math.random() * 0.55}s`);
+    piece.style.setProperty("--duration", `${2.4 + Math.random() * 1.3}s`);
+    piece.style.setProperty("--drift", `${direction * (24 + Math.random() * 38)}px`);
+    piece.style.setProperty("--turn", `${direction * (560 + Math.random() * 320)}deg`);
+    piece.style.setProperty("--color", colors[index % colors.length]);
+    confetti.appendChild(piece);
+  }
+
+  const clown = document.createElement("div");
+  clown.className = "celebration-clown sketch-icon";
+  clown.innerHTML = renderClownIcon();
+
+  overlay.append(confetti, clown);
+  document.body.appendChild(overlay);
+  window.setTimeout(() => overlay.remove(), 4600);
 }
 
 async function overrideScore(form, data) {
