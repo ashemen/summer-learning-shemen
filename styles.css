@@ -43,6 +43,68 @@ button {
 
 .app-shell {
   min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.app-scheme-classic {
+  --bg: #fbfaf7;
+  --surface-soft: #eef8fb;
+  --surface-mint: #effaf8;
+  --ink: #17313d;
+  --muted: #667985;
+  --teal: #006477;
+  --teal-dark: #004f61;
+  --teal-soft: #d7f0f4;
+  --coral: #f66752;
+  --coral-soft: #ffe8e3;
+  --line: #cfe0e5;
+  --shadow: 0 18px 45px rgba(16, 56, 68, 0.12);
+}
+
+.app-scheme-rose {
+  --bg: #fff8fb;
+  --surface-soft: #fff0f7;
+  --surface-mint: #f5f0ff;
+  --ink: #37263f;
+  --muted: #7b687f;
+  --teal: #8f4f9f;
+  --teal-dark: #65336f;
+  --teal-soft: #f1dff8;
+  --coral: #e85787;
+  --coral-soft: #ffe2ed;
+  --line: #ead1e4;
+  --shadow: 0 18px 45px rgba(101, 51, 111, 0.13);
+}
+
+.app-scheme-mint {
+  --bg: #f6fbf6;
+  --surface-soft: #eaf8ef;
+  --surface-mint: #fff8dc;
+  --ink: #173a32;
+  --muted: #5f7b70;
+  --teal: #1f7a68;
+  --teal-dark: #155646;
+  --teal-soft: #d7f1e7;
+  --coral: #d9a92f;
+  --coral-soft: #fff2c2;
+  --line: #cbe3d6;
+  --shadow: 0 18px 45px rgba(21, 86, 70, 0.12);
+}
+
+.app-scheme-sky {
+  --bg: #f6fbff;
+  --surface-soft: #e8f4ff;
+  --surface-mint: #fff7e1;
+  --ink: #18324d;
+  --muted: #61788d;
+  --teal: #2f6fa3;
+  --teal-dark: #214f78;
+  --teal-soft: #dceeff;
+  --coral: #f0a93a;
+  --coral-soft: #fff0cd;
+  --line: #cddfed;
+  --shadow: 0 18px 45px rgba(33, 79, 120, 0.12);
 }
 
 .layout {
@@ -155,7 +217,13 @@ button {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  margin-top: 18px;
+  margin-top: 12px;
+}
+
+.display-section-title {
+  margin: 20px 0 0;
+  color: var(--teal);
+  font-size: 1rem;
 }
 
 .display-option {
@@ -181,6 +249,38 @@ button {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background-size: 180px 120px;
+}
+
+.color-swatch {
+  min-height: 72px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 1.15fr 0.8fr 0.6fr;
+  gap: 8px;
+  align-items: end;
+  background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+}
+
+.color-swatch i {
+  display: block;
+  border-radius: var(--radius);
+}
+
+.color-swatch i:nth-child(1) {
+  height: 44px;
+  background: var(--teal-soft);
+}
+
+.color-swatch i:nth-child(2) {
+  height: 30px;
+  background: var(--coral);
+}
+
+.color-swatch i:nth-child(3) {
+  height: 54px;
+  background: var(--coral-soft);
 }
 
 .main {

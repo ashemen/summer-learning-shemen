@@ -41,6 +41,12 @@ const DISPLAY_THEMES = [
   { id: "hearts", label: "לבבות" },
   { id: "cars", label: "מכוניות" },
 ];
+const COLOR_SCHEMES = [
+  { id: "classic", label: "ים ואלמוג" },
+  { id: "rose", label: "ורוד וסגול" },
+  { id: "mint", label: "מנטה וצהוב" },
+  { id: "sky", label: "שמיים ושמש" },
+];
 const STORAGE_TO_STATE = {
   [STORAGE.students]: "students",
   [STORAGE.courses]: "courses",
@@ -127,6 +133,7 @@ function normalizeStudents(students) {
     courseIds: student.courseIds || [],
     avatarDataUrl: isStudentAvatar(student.avatarDataUrl) ? student.avatarDataUrl : "",
     displayTheme: isValidDisplayTheme(student.displayTheme) ? student.displayTheme : "flowers",
+    colorScheme: isValidColorScheme(student.colorScheme) ? student.colorScheme : "classic",
   }));
 }
 
@@ -375,6 +382,7 @@ function normalizeUnit(unit, index = 0) {
 
 async function render() {
   const content = await renderScreen();
+  app.className = `app-shell app-scheme-${getActiveColorScheme()}`;
   app.innerHTML = `
     <div class="layout">
       ${renderSideNav()}
@@ -441,6 +449,7 @@ function renderDisplayModal() {
   const student = getSelectedStudent();
   if (!state.displayModalOpen || !student) return "";
   const currentTheme = getStudentDisplayTheme(student);
+  const currentScheme = getStudentColorScheme(student);
 
   return `
     <div class="modal-backdrop">
@@ -448,16 +457,30 @@ function renderDisplayModal() {
         <div class="panel-header">
           <div>
             <h2 id="display-title">תצוגה</h2>
-            <p class="muted">בחרי רקע ללימוד ולמבחנים.</p>
+            <p class="muted">בחרי רקע ללימוד ומראה צבעוני לאפליקציה.</p>
           </div>
           <button class="ghost" type="button" data-action="close-display-modal">סגירה</button>
         </div>
+        <h3 class="display-section-title">רקע ללימוד ולמבחנים</h3>
         <div class="display-options">
           ${DISPLAY_THEMES.map(
             (theme) => `
               <button class="display-option ${theme.id === currentTheme ? "active" : ""}" type="button" data-action="set-display-theme" data-theme="${theme.id}">
                 <span class="display-swatch display-${theme.id}" aria-hidden="true"></span>
                 <strong>${theme.label}</strong>
+              </button>
+            `
+          ).join("")}
+        </div>
+        <h3 class="display-section-title">ערכת צבעים</h3>
+        <div class="display-options color-options">
+          ${COLOR_SCHEMES.map(
+            (scheme) => `
+              <button class="display-option color-option ${scheme.id === currentScheme ? "active" : ""}" type="button" data-action="set-color-scheme" data-scheme="${scheme.id}">
+                <span class="color-swatch app-scheme-${scheme.id}" aria-hidden="true">
+                  <i></i><i></i><i></i>
+                </span>
+                <strong>${scheme.label}</strong>
               </button>
             `
           ).join("")}
@@ -1290,6 +1313,9 @@ async function handleClick(event) {
   if (action === "set-display-theme") {
     return setStudentDisplayTheme(target.dataset.theme);
   }
+  if (action === "set-color-scheme") {
+    return setStudentColorScheme(target.dataset.scheme);
+  }
   if (action === "toggle-password-recovery") {
     state.adminRecoveryOpen = !state.adminRecoveryOpen;
     await render();
@@ -2026,13 +2052,33 @@ function getStudentDisplayTheme(student) {
   return isValidDisplayTheme(student?.displayTheme) ? student.displayTheme : "flowers";
 }
 
+function isValidColorScheme(scheme) {
+  return COLOR_SCHEMES.some((item) => item.id === scheme);
+}
+
+function getStudentColorScheme(student) {
+  return isValidColorScheme(student?.colorScheme) ? student.colorScheme : "classic";
+}
+
+function getActiveColorScheme() {
+  const student = getSelectedStudent();
+  return student && state.screen.startsWith("student") ? getStudentColorScheme(student) : "classic";
+}
+
 async function setStudentDisplayTheme(theme) {
   const student = getSelectedStudent();
   if (!student || !isValidDisplayTheme(theme)) return show("error", "בחירת התצוגה אינה תקינה.");
   student.displayTheme = theme;
-  state.displayModalOpen = false;
   saveStorage(STORAGE.students, state.students);
   return show("success", "התצוגה נשמרה.");
+}
+
+async function setStudentColorScheme(scheme) {
+  const student = getSelectedStudent();
+  if (!student || !isValidColorScheme(scheme)) return show("error", "בחירת הצבעים אינה תקינה.");
+  student.colorScheme = scheme;
+  saveStorage(STORAGE.students, state.students);
+  return show("success", "ערכת הצבעים נשמרה.");
 }
 
 function getSelectedUnit(course) {
