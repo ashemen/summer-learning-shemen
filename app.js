@@ -73,6 +73,7 @@ const contentCache = new Map();
 let firestoreDb = null;
 let cloudStorageAvailable = false;
 let cloudSubscriptionsStarted = false;
+let celebrationAudioContext = null;
 const cloudSaveTimers = new Map();
 
 document.addEventListener("DOMContentLoaded", init);
@@ -1773,12 +1774,125 @@ async function submitQuestions(form) {
       perfectSubmission
         ? `כל הכבוד! פתחת את כל הקוד: ${fullCode}`
         : `המשחק נשמר. פתחת ${correctCount}/${questions.length} חלקי קוד.`;
+    if (perfectSubmission) playExerciseCheer();
     await show("success", message);
     if (perfectSubmission) launchExerciseCelebration();
     return;
   }
+  if (perfectSubmission) playTestApplause();
   await show("success", `ההגשה נשמרה. הציון: ${score}/${total}`);
   if (perfectSubmission) launchTestCelebration();
+}
+
+function getCelebrationAudioContext() {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return null;
+  celebrationAudioContext = celebrationAudioContext || new AudioContextClass();
+  if (celebrationAudioContext.state === "suspended") {
+    celebrationAudioContext.resume().catch(() => undefined);
+  }
+  return celebrationAudioContext;
+}
+
+function playExerciseCheer() {
+  const context = getCelebrationAudioContext();
+  if (!context) return;
+  try {
+    const start = context.currentTime + 0.02;
+    const master = context.createGain();
+    master.gain.setValueAtTime(0.0001, start);
+    master.gain.exponentialRampToValueAtTime(0.42, start + 0.18);
+    master.gain.exponentialRampToValueAtTime(0.0001, start + 3.1);
+    master.connect(context.destination);
+
+    for (let index = 0; index < 7; index += 1) {
+      scheduleCheerLayer(context, master, start + index * 0.08, 2.2 + Math.random() * 0.7);
+    }
+    for (let index = 0; index < 12; index += 1) {
+      scheduleWhoop(context, master, start + 0.15 + index * 0.18, 430 + Math.random() * 520);
+    }
+  } catch (error) {
+    console.warn("Celebration audio could not play.", error);
+  }
+}
+
+function playTestApplause() {
+  const context = getCelebrationAudioContext();
+  if (!context) return;
+  try {
+    const start = context.currentTime + 0.02;
+    const master = context.createGain();
+    master.gain.setValueAtTime(0.0001, start);
+    master.gain.exponentialRampToValueAtTime(0.48, start + 0.08);
+    master.gain.exponentialRampToValueAtTime(0.0001, start + 3.0);
+    master.connect(context.destination);
+
+    for (let index = 0; index < 46; index += 1) {
+      scheduleClap(context, master, start + Math.random() * 2.55, 0.75 + Math.random() * 0.6);
+    }
+  } catch (error) {
+    console.warn("Celebration audio could not play.", error);
+  }
+}
+
+function scheduleCheerLayer(context, destination, start, duration) {
+  const source = context.createBufferSource();
+  source.buffer = createNoiseBuffer(context, duration);
+  const filter = context.createBiquadFilter();
+  filter.type = "bandpass";
+  filter.frequency.setValueAtTime(700 + Math.random() * 900, start);
+  filter.Q.setValueAtTime(0.55, start);
+  const gain = context.createGain();
+  gain.gain.setValueAtTime(0.0001, start);
+  gain.gain.exponentialRampToValueAtTime(0.08 + Math.random() * 0.05, start + 0.12);
+  gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+  source.connect(filter);
+  filter.connect(gain);
+  gain.connect(destination);
+  source.start(start);
+  source.stop(start + duration);
+}
+
+function scheduleWhoop(context, destination, start, frequency) {
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+  oscillator.type = "triangle";
+  oscillator.frequency.setValueAtTime(frequency, start);
+  oscillator.frequency.exponentialRampToValueAtTime(frequency * 1.8, start + 0.24);
+  gain.gain.setValueAtTime(0.0001, start);
+  gain.gain.exponentialRampToValueAtTime(0.045, start + 0.04);
+  gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.34);
+  oscillator.connect(gain);
+  gain.connect(destination);
+  oscillator.start(start);
+  oscillator.stop(start + 0.36);
+}
+
+function scheduleClap(context, destination, start, volume) {
+  const source = context.createBufferSource();
+  source.buffer = createNoiseBuffer(context, 0.08);
+  const filter = context.createBiquadFilter();
+  filter.type = "highpass";
+  filter.frequency.setValueAtTime(850 + Math.random() * 800, start);
+  const gain = context.createGain();
+  gain.gain.setValueAtTime(0.0001, start);
+  gain.gain.exponentialRampToValueAtTime(0.18 * volume, start + 0.006);
+  gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.08);
+  source.connect(filter);
+  filter.connect(gain);
+  gain.connect(destination);
+  source.start(start);
+  source.stop(start + 0.09);
+}
+
+function createNoiseBuffer(context, duration) {
+  const sampleRate = context.sampleRate || 44100;
+  const buffer = context.createBuffer(1, Math.ceil(sampleRate * duration), sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let index = 0; index < data.length; index += 1) {
+    data[index] = Math.random() * 2 - 1;
+  }
+  return buffer;
 }
 
 function createCelebrationOverlay() {
