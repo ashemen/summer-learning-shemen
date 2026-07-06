@@ -188,11 +188,31 @@ button {
   overflow-x: hidden;
 }
 
+.student-banner {
+  background: linear-gradient(135deg, #fff, #eef8fb);
+  border-color: rgba(0, 100, 119, 0.22);
+}
+
+.student-banner-header {
+  align-items: center;
+}
+
 .student-profile {
   display: flex;
   align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
+  gap: 16px;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.student-profile > div {
+  min-width: 0;
+}
+
+.student-profile h1 {
+  margin: 0;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
 }
 
 .student-actions {
@@ -236,6 +256,13 @@ button {
   border-color: rgba(255, 255, 255, 0.9);
   background: rgba(255, 255, 255, 0.18);
   color: #fff;
+}
+
+.banner-avatar {
+  width: clamp(84px, 10vw, 112px);
+  height: clamp(84px, 10vw, 112px);
+  border-width: 3px;
+  box-shadow: 0 12px 28px rgba(246, 103, 82, 0.18);
 }
 
 .hero {
@@ -1080,6 +1107,10 @@ th {
   .student-actions {
     justify-items: stretch;
     width: 100%;
+  }
+
+  .student-banner-header {
+    align-items: flex-start;
   }
 
   .tabs {

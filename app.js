@@ -548,10 +548,10 @@ async function renderStudentCourse() {
     .join("");
 
   return `
-    <section class="panel">
-      <div class="panel-header">
+    <section class="panel student-banner">
+      <div class="panel-header student-banner-header">
         <div class="student-profile">
-          ${renderStudentAvatar(student)}
+          ${renderStudentAvatar(student, "banner-avatar")}
           <div>
             <h1>שלום ${escapeHtml(student.name)}</h1>
             <p class="muted">בחרי קורס, ואז יחידה מתוך הקורס.</p>
