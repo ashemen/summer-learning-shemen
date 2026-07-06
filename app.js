@@ -1604,18 +1604,23 @@ async function submitQuestions(form) {
         ? `כל הכבוד! פתחת את כל הקוד: ${fullCode}`
         : `המשחק נשמר. פתחת ${correctCount}/${questions.length} חלקי קוד.`;
     await show("success", message);
-    if (perfectSubmission) launchCelebration();
+    if (perfectSubmission) launchExerciseCelebration();
     return;
   }
   await show("success", `ההגשה נשמרה. הציון: ${score}/${total}`);
-  if (perfectSubmission) launchCelebration();
+  if (perfectSubmission) launchTestCelebration();
 }
 
-function launchCelebration() {
+function createCelebrationOverlay() {
   document.querySelector(".celebration-overlay")?.remove();
   const overlay = document.createElement("div");
   overlay.className = "celebration-overlay";
   overlay.setAttribute("aria-hidden", "true");
+  return overlay;
+}
+
+function launchExerciseCelebration() {
+  const overlay = createCelebrationOverlay();
 
   const confetti = document.createElement("div");
   confetti.className = "celebration-confetti";
@@ -1639,6 +1644,19 @@ function launchCelebration() {
   overlay.append(confetti, clown);
   document.body.appendChild(overlay);
   window.setTimeout(() => overlay.remove(), 4600);
+}
+
+function launchTestCelebration() {
+  const overlay = createCelebrationOverlay();
+  overlay.classList.add("test-celebration");
+
+  const clown = document.createElement("div");
+  clown.className = "celebration-clown test-clown sketch-icon";
+  clown.innerHTML = renderClownIcon();
+
+  overlay.appendChild(clown);
+  document.body.appendChild(overlay);
+  window.setTimeout(() => overlay.remove(), 4200);
 }
 
 async function overrideScore(form, data) {

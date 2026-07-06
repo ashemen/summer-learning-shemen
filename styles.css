@@ -291,6 +291,40 @@ button {
   animation: clown-dance-across 3.8s cubic-bezier(0.25, 0.75, 0.25, 1) 0.25s both;
 }
 
+.test-celebration {
+  background: radial-gradient(circle at 50% 58%, rgba(255, 231, 163, 0.34), transparent 34%);
+}
+
+.test-clown {
+  right: auto;
+  left: 50%;
+  bottom: clamp(88px, 24vh, 210px);
+  transform-origin: 50% 68%;
+  animation: clown-cheer-somersault 3.7s cubic-bezier(0.32, 0.82, 0.28, 1) 0.1s both;
+}
+
+.test-clown::before,
+.test-clown::after {
+  content: "";
+  position: absolute;
+  top: 26%;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #ff8fb3 0 28%, transparent 30%),
+    conic-gradient(from 12deg, #ffd166, #f66752, #7a5cff, #2fbf9f, #ffd166);
+  box-shadow: 0 0 0 5px rgba(255, 209, 102, 0.22);
+}
+
+.test-clown::before {
+  left: -12px;
+}
+
+.test-clown::after {
+  right: -12px;
+}
+
 @keyframes confetti-fall {
   0% {
     transform: translate3d(0, -16px, 0) rotate(0deg);
@@ -327,6 +361,30 @@ button {
   }
 }
 
+@keyframes clown-cheer-somersault {
+  0% {
+    transform: translate3d(52vw, 18px, 0) rotate(0deg) scale(0.92);
+  }
+  16% {
+    transform: translate3d(28vw, -92px, 0) rotate(-210deg) scale(1.06);
+  }
+  32% {
+    transform: translate3d(8vw, 8px, 0) rotate(-360deg) scale(0.98);
+  }
+  50% {
+    transform: translate3d(-12vw, -104px, 0) rotate(-570deg) scale(1.08);
+  }
+  68% {
+    transform: translate3d(-30vw, 12px, 0) rotate(-720deg) scale(1);
+  }
+  84% {
+    transform: translate3d(-42vw, -72px, 0) rotate(-900deg) scale(1.04);
+  }
+  100% {
+    transform: translate3d(-58vw, 18px, 0) rotate(-1080deg) scale(0.9);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .celebration-confetti span {
     animation-duration: 0.8s;
@@ -334,6 +392,11 @@ button {
 
   .celebration-clown {
     animation: none;
+    right: 24px;
+  }
+
+  .test-clown {
+    left: auto;
     right: 24px;
   }
 }
