@@ -35,6 +35,12 @@ const CLOUD_DOCS = {
 const ADMIN_RECOVERY_SALT = "summer-learning-admin-recovery";
 const ADMIN_RECOVERY_ANSWER_HASH = "3d5c2f6681c5d90f5daa775fac47d4c6c363059ecaaf748765627bcdd2eefd8e";
 const TEST_REWARD_SHEKELS = 5;
+const DISPLAY_THEMES = [
+  { id: "flowers", label: "פרחים ופרפרים" },
+  { id: "bunnies", label: "ארנבים וציפורים" },
+  { id: "hearts", label: "לבבות" },
+  { id: "cars", label: "מכוניות" },
+];
 const STORAGE_TO_STATE = {
   [STORAGE.students]: "students",
   [STORAGE.courses]: "courses",
@@ -57,6 +63,7 @@ const state = {
   selectedCourseId: "",
   selectedUnitId: "",
   studentTab: "lesson",
+  displayModalOpen: false,
   message: null,
   storageMode: "loading",
   storageError: "",
@@ -118,6 +125,7 @@ function normalizeStudents(students) {
     ...student,
     courseIds: student.courseIds || [],
     avatarDataUrl: isStudentAvatar(student.avatarDataUrl) ? student.avatarDataUrl : "",
+    displayTheme: isValidDisplayTheme(student.displayTheme) ? student.displayTheme : "flowers",
   }));
 }
 
@@ -317,7 +325,9 @@ function startCloudSubscriptions() {
             ? nextValue.map(normalizeCourse)
             : stateKey === "progress"
               ? normalizeProgress(nextValue)
-              : nextValue;
+              : stateKey === "students"
+                ? normalizeStudents(nextValue)
+                : nextValue;
         if (stateKey === "progress") syncAllTestRewards();
         if (app.innerHTML) await render();
       },
@@ -373,6 +383,7 @@ async function render() {
         ${content}
       </main>
     </div>
+    ${renderDisplayModal()}
   `;
   state.message = null;
 }
@@ -414,13 +425,44 @@ function renderSideNav() {
               <span>קופת מבחנים</span>
               <strong>${shekels} ₪</strong>
               <small>₪${TEST_REWARD_SHEKELS} לכל מבחן מושלם</small>
-            </div>`
+            </div>
+            <button class="nav-button" data-action="open-display-modal">תצוגה <span>◫</span></button>`
           : ""
       }
       <button class="nav-button ${state.screen.startsWith("admin") ? "active" : ""}" data-action="admin-entry">${adminLabel} <span>⚙</span></button>
       <div class="nav-spacer"></div>
       ${state.adminAuthenticated ? `<button class="nav-button" data-action="admin-logout">יציאה מאיזור אבא <span>↪</span></button>` : ""}
     </aside>
+  `;
+}
+
+function renderDisplayModal() {
+  const student = getSelectedStudent();
+  if (!state.displayModalOpen || !student) return "";
+  const currentTheme = getStudentDisplayTheme(student);
+
+  return `
+    <div class="modal-backdrop">
+      <section class="display-modal" role="dialog" aria-modal="true" aria-labelledby="display-title" data-modal-panel>
+        <div class="panel-header">
+          <div>
+            <h2 id="display-title">תצוגה</h2>
+            <p class="muted">בחרי רקע ללימוד ולמבחנים.</p>
+          </div>
+          <button class="ghost" type="button" data-action="close-display-modal">סגירה</button>
+        </div>
+        <div class="display-options">
+          ${DISPLAY_THEMES.map(
+            (theme) => `
+              <button class="display-option ${theme.id === currentTheme ? "active" : ""}" type="button" data-action="set-display-theme" data-theme="${theme.id}">
+                <span class="display-swatch display-${theme.id}" aria-hidden="true"></span>
+                <strong>${theme.label}</strong>
+              </button>
+            `
+          ).join("")}
+        </div>
+      </section>
+    </div>
   `;
 }
 
@@ -548,6 +590,10 @@ async function renderCourseWorkspace(student, course) {
   if (state.studentTab === "game") body = await renderLearningGame(student, course, unit);
   if (state.studentTab === "test") body = await renderQuestionSet(student, course, unit, "tests");
   if (state.studentTab === "scores") body = renderScoreOverview(student, course, unit);
+  const themedBody =
+    state.studentTab === "lesson" || state.studentTab === "test"
+      ? `<div class="display-surface display-${getStudentDisplayTheme(student)}">${body}</div>`
+      : body;
 
   return `
     <section class="panel">
@@ -585,7 +631,7 @@ async function renderCourseWorkspace(student, course) {
           )
           .join("")}
       </div>
-      ${body}
+      ${themedBody}
     </section>
   `;
 }
@@ -1222,6 +1268,7 @@ async function handleClick(event) {
   const action = target.dataset.action;
   if (action === "go") {
     state.screen = target.dataset.screen;
+    state.displayModalOpen = false;
     await render();
   }
   if (action === "admin-entry") {
@@ -1230,6 +1277,17 @@ async function handleClick(event) {
   }
   if (action === "admin-logout") {
     return await logoutAdmin();
+  }
+  if (action === "open-display-modal") {
+    state.displayModalOpen = true;
+    await render();
+  }
+  if (action === "close-display-modal") {
+    state.displayModalOpen = false;
+    await render();
+  }
+  if (action === "set-display-theme") {
+    return setStudentDisplayTheme(target.dataset.theme);
   }
   if (action === "toggle-password-recovery") {
     state.adminRecoveryOpen = !state.adminRecoveryOpen;
@@ -1844,6 +1902,23 @@ function isValidBackup(backup) {
 
 function getSelectedStudent() {
   return state.students.find((student) => student.id === state.selectedStudentId);
+}
+
+function isValidDisplayTheme(theme) {
+  return DISPLAY_THEMES.some((item) => item.id === theme);
+}
+
+function getStudentDisplayTheme(student) {
+  return isValidDisplayTheme(student?.displayTheme) ? student.displayTheme : "flowers";
+}
+
+async function setStudentDisplayTheme(theme) {
+  const student = getSelectedStudent();
+  if (!student || !isValidDisplayTheme(theme)) return show("error", "בחירת התצוגה אינה תקינה.");
+  student.displayTheme = theme;
+  state.displayModalOpen = false;
+  saveStorage(STORAGE.students, state.students);
+  return show("success", "התצוגה נשמרה.");
 }
 
 function getSelectedUnit(course) {
