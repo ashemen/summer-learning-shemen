@@ -947,6 +947,8 @@ summary {
   display: grid;
   gap: 8px;
   margin: 12px 0;
+  width: min(100%, 560px);
+  justify-items: stretch;
 }
 
 .choice {
@@ -954,9 +956,24 @@ summary {
   background: #fff;
   padding: 10px 12px;
   border-radius: var(--radius);
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   gap: 8px;
   align-items: center;
+  direction: rtl;
+  text-align: right;
+}
+
+.choice input {
+  width: auto;
+  min-height: 0;
+  margin: 0;
+  justify-self: start;
+}
+
+.choice span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .score-pill {
