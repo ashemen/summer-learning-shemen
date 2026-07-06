@@ -101,6 +101,25 @@ button {
   flex: 1;
 }
 
+.nav-reward {
+  display: grid;
+  gap: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.nav-reward span,
+.nav-reward small {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.nav-reward strong {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
 .main {
   padding: 34px clamp(18px, 4vw, 54px);
   overflow-x: hidden;
@@ -791,6 +810,33 @@ summary {
   background: var(--teal-soft);
   color: var(--teal);
   font-weight: 800;
+}
+
+.reward-summary {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.reward-amount {
+  display: inline-grid;
+  place-items: center;
+  min-width: 88px;
+  min-height: 54px;
+  border-radius: var(--radius);
+  background: #fff4c7;
+  color: #745000;
+  font-size: 1.35rem;
+  font-weight: 900;
+}
+
+.student-reward-line {
+  margin-top: 4px;
+  color: var(--teal);
+  font-weight: 800;
+}
+
+.reward-admin-grid {
+  margin-bottom: 18px;
 }
 
 .table-wrap {

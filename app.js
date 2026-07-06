@@ -34,6 +34,7 @@ const CLOUD_DOCS = {
 };
 const ADMIN_RECOVERY_SALT = "summer-learning-admin-recovery";
 const ADMIN_RECOVERY_ANSWER_HASH = "3d5c2f6681c5d90f5daa775fac47d4c6c363059ecaaf748765627bcdd2eefd8e";
+const TEST_REWARD_SHEKELS = 5;
 const STORAGE_TO_STATE = {
   [STORAGE.students]: "students",
   [STORAGE.courses]: "courses",
@@ -98,7 +99,8 @@ async function loadInitialData() {
 
   state.students = normalizeStudents(loadedState.students);
   state.courses = normalizeCourses(loadedState.courses);
-  state.progress = loadedState.progress;
+  state.progress = normalizeProgress(loadedState.progress);
+  syncAllTestRewards();
   state.adminSettings = loadedState.adminSettings || {};
 
   if (shouldApplyRecovery(state.adminSettings, fileAdmin)) {
@@ -107,6 +109,7 @@ async function loadInitialData() {
   }
   saveStorage(STORAGE.students, state.students);
   saveStorage(STORAGE.courses, state.courses);
+  saveStorage(STORAGE.progress, state.progress);
 }
 
 function normalizeStudents(students) {
@@ -117,6 +120,13 @@ function normalizeStudents(students) {
 function normalizeCourses(courses) {
   if (!Array.isArray(courses)) return [];
   return courses.map(normalizeCourse);
+}
+
+function normalizeProgress(progress) {
+  return {
+    attempts: progress?.attempts || {},
+    rewards: progress?.rewards || {},
+  };
 }
 
 function shouldApplyRecovery(localAdmin, fileAdmin) {
@@ -201,7 +211,12 @@ function readLocalSnapshot(seedState) {
   for (const [key, stateKey] of Object.entries(STORAGE_TO_STATE)) {
     const localValue = readLocalStorage(key, seedState[stateKey]);
     if (localStorage.getItem(key)) hasAnyLocalData = true;
-    data[stateKey] = stateKey === "courses" && Array.isArray(localValue) ? localValue.map(normalizeCourse) : localValue;
+    data[stateKey] =
+      stateKey === "courses" && Array.isArray(localValue)
+        ? localValue.map(normalizeCourse)
+        : stateKey === "progress"
+          ? normalizeProgress(localValue)
+          : localValue;
   }
   return { data, hasAnyLocalData };
 }
@@ -293,7 +308,13 @@ function startCloudSubscriptions() {
         if (!snapshot.exists()) return;
         const nextValue = snapshot.data().value;
         if (nextValue === undefined) return;
-        state[stateKey] = stateKey === "courses" ? nextValue.map(normalizeCourse) : nextValue;
+        state[stateKey] =
+          stateKey === "courses"
+            ? nextValue.map(normalizeCourse)
+            : stateKey === "progress"
+              ? normalizeProgress(nextValue)
+              : nextValue;
+        if (stateKey === "progress") syncAllTestRewards();
         if (app.innerHTML) await render();
       },
       (error) => {
@@ -372,11 +393,22 @@ async function renderScreen() {
 
 function renderSideNav() {
   const adminLabel = state.adminAuthenticated ? "לוח אבא" : "איזור אבא";
+  const student = getSelectedStudent();
+  const shekels = student ? getStudentRewardTotal(student.id) : 0;
   return `
     <aside class="side-nav">
       <div class="brand"><span class="brand-mark">ק</span><span>לימודי קיץ</span></div>
       <button class="nav-button ${state.screen === "home" ? "active" : ""}" data-action="go" data-screen="home">בית <span>⌂</span></button>
       <button class="nav-button ${state.screen.startsWith("student") ? "active" : ""}" data-action="go" data-screen="studentSelect">אזור ליצנית קיץ <span>◐</span></button>
+      ${
+        student && state.screen.startsWith("student")
+          ? `<div class="nav-reward" aria-label="שקלים שנצברו">
+              <span>קופת מבחנים</span>
+              <strong>${shekels} ₪</strong>
+              <small>₪${TEST_REWARD_SHEKELS} לכל מבחן מושלם</small>
+            </div>`
+          : ""
+      }
       <button class="nav-button ${state.screen.startsWith("admin") ? "active" : ""}" data-action="admin-entry">${adminLabel} <span>⚙</span></button>
       <div class="nav-spacer"></div>
       ${state.adminAuthenticated ? `<button class="nav-button" data-action="admin-logout">יציאה מאיזור אבא <span>↪</span></button>` : ""}
@@ -681,17 +713,24 @@ function renderAnswerInput(question, savedAnswer) {
 }
 
 function renderScoreOverview(student, course, unit) {
-  const ex = getAttempt(student.id, course.id, unit.id, "exercises");
   const test = getAttempt(student.id, course.id, unit.id, "tests");
+  const reward = getTestReward(student.id, course.id, unit.id);
+  const totalShekels = getStudentRewardTotal(student.id);
   return `
-    <div class="grid two">
-      ${renderScoreCard("משחק", ex)}
-      ${renderScoreCard("מבחן", test)}
+    <div class="grid">
+      <article class="item reward-summary">
+        <div>
+          <h3>קופת מבחנים</h3>
+          <p class="muted">שקלים מתקבלים רק ממבחנים מושלמים.</p>
+        </div>
+        <span class="reward-amount">${totalShekels} ₪</span>
+      </article>
+      ${renderScoreCard("מבחן", test, reward)}
     </div>
   `;
 }
 
-function renderScoreCard(label, attempt) {
+function renderScoreCard(label, attempt, reward = null) {
   if (!attempt) return `<article class="item"><h3>${label}</h3><p class="muted">עדיין לא הוגש.</p></article>`;
   const score = getCurrentScore(attempt);
   return `
@@ -701,6 +740,7 @@ function renderScoreCard(label, attempt) {
         <span class="score-pill">${score}/${attempt.total}</span>
       </div>
       <p class="muted">הוגש בתאריך ${formatDate(attempt.submittedAt)}</p>
+      ${reward ? `<p class="message success">המבחן מושלם, ונוספו ${reward.amount} ₪ לקופה.</p>` : `<p class="message warning">כדי להרוויח ${TEST_REWARD_SHEKELS} ₪ צריך מבחן מושלם.</p>`}
       ${attempt.override ? `<p class="message warning">הציון עודכן ידנית. הערה: ${escapeHtml(attempt.override.note || "ללא הערה")}</p>` : ""}
     </article>
   `;
@@ -826,6 +866,7 @@ function renderAdminStudents() {
                       <div>
                         <strong>${escapeHtml(student.name)}</strong>
                         <div class="muted">כיתה ${escapeHtml(student.grade || "לא צוינה")}</div>
+                        <div class="student-reward-line">קופת מבחנים: <strong>${getStudentRewardTotal(student.id)} ₪</strong></div>
                       </div>
                       <button class="danger" data-action="delete-student" data-id="${student.id}">מחיקה</button>
                     </div>
@@ -1023,14 +1064,29 @@ function renderAdminScores() {
   for (const student of state.students) {
     for (const course of state.courses.filter((item) => student.courseIds?.includes(item.id))) {
       for (const unit of course.units || []) {
-        for (const kind of ["exercises", "tests"]) {
-          rows.push({ student, course, unit, kind, attempt: getAttempt(student.id, course.id, unit.id, kind) });
-        }
+        rows.push({ student, course, unit, attempt: getAttempt(student.id, course.id, unit.id, "tests") });
       }
     }
   }
 
   return `
+    <section class="grid two reward-admin-grid">
+      ${
+        state.students
+          .map(
+            (student) => `
+              <article class="item reward-summary">
+                <div>
+                  <h3>${escapeHtml(student.name)}</h3>
+                  <p class="muted">מבחנים מושלמים: ${getStudentRewardCount(student.id)}</p>
+                </div>
+                <span class="reward-amount">${getStudentRewardTotal(student.id)} ₪</span>
+              </article>
+            `
+          )
+          .join("") || `<div class="empty">עדיין אין תלמידות.</div>`
+      }
+    </section>
     <div class="table-wrap">
       <table>
         <thead>
@@ -1038,8 +1094,8 @@ function renderAdminScores() {
             <th>תלמידה</th>
             <th>קורס</th>
             <th>יחידה</th>
-            <th>סוג</th>
             <th>ציון</th>
+            <th>שקלים</th>
             <th>עדכון ידני</th>
           </tr>
         </thead>
@@ -1047,17 +1103,19 @@ function renderAdminScores() {
           ${
             rows
               .map(
-                ({ student, course, unit, kind, attempt }) => `
+                ({ student, course, unit, attempt }) => {
+                  const reward = getTestReward(student.id, course.id, unit.id);
+                  return `
                   <tr>
                     <td>${escapeHtml(student.name)}</td>
                     <td>${escapeHtml(course.title)}</td>
                     <td>${escapeHtml(unit.title)}</td>
-                    <td>${kind === "exercises" ? "משחק" : "מבחן"}</td>
                     <td>${attempt ? `${getCurrentScore(attempt)}/${attempt.total}` : "טרם הוגש"}</td>
+                    <td>${reward ? `${reward.amount} ₪` : "0 ₪"}</td>
                     <td>
                       ${
                         attempt
-                          ? `<form data-form="override-score" data-student-id="${student.id}" data-course-id="${course.id}" data-unit-id="${unit.id}" data-kind="${kind}" class="grid">
+                          ? `<form data-form="override-score" data-student-id="${student.id}" data-course-id="${course.id}" data-unit-id="${unit.id}" data-kind="tests" class="grid">
                               <label>ציון חדש
                                 <input name="score" type="number" min="0" max="${attempt.total}" value="${getCurrentScore(attempt)}" />
                               </label>
@@ -1070,7 +1128,8 @@ function renderAdminScores() {
                       }
                     </td>
                   </tr>
-                `
+                `;
+                }
               )
               .join("") || `<tr><td colspan="6">אין נתונים להצגה.</td></tr>`
           }
@@ -1349,6 +1408,7 @@ function deleteStudent(id) {
   if (!student || !confirm(`למחוק את ${student.name}?`)) return;
   state.students = state.students.filter((item) => item.id !== id);
   delete state.progress.attempts[id];
+  syncAllTestRewards();
   saveStorage(STORAGE.students, state.students);
   saveStorage(STORAGE.progress, state.progress);
   state.message = { type: "success", text: "התלמידה נמחקה." };
@@ -1412,6 +1472,7 @@ function deleteCourse(id) {
   for (const studentAttempts of Object.values(state.progress.attempts || {})) {
     delete studentAttempts[id];
   }
+  syncAllTestRewards();
   saveStorage(STORAGE.courses, state.courses);
   saveStorage(STORAGE.students, state.students);
   saveStorage(STORAGE.progress, state.progress);
@@ -1559,6 +1620,7 @@ function deleteUnit(courseId, unitId) {
     const courseAttempts = studentAttempts[courseId];
     if (courseAttempts?.units) delete courseAttempts.units[unitId];
   }
+  syncAllTestRewards();
   saveStorage(STORAGE.courses, state.courses);
   saveStorage(STORAGE.progress, state.progress);
   state.message = { type: "success", text: "היחידה נמחקה." };
@@ -1595,6 +1657,7 @@ async function submitQuestions(form) {
     total,
     submittedAt: new Date().toISOString(),
   });
+  syncAllTestRewards();
   saveStorage(STORAGE.progress, state.progress);
   const perfectSubmission = questions.length > 0 && correctCount === questions.length;
   if (kind === "exercises") {
@@ -1672,6 +1735,7 @@ async function overrideScore(form, data) {
     note: String(data.get("note") || "").trim(),
     timestamp: new Date().toISOString(),
   };
+  syncAllTestRewards();
   saveStorage(STORAGE.progress, state.progress);
   return show("success", "הציון עודכן ידנית.");
 }
@@ -1703,9 +1767,10 @@ async function importBackup(data) {
   try {
     const backup = JSON.parse(file && file.size ? await file.text() : pastedText);
     if (!isValidBackup(backup)) throw new Error("Invalid backup");
-    state.students = backup.students;
+    state.students = normalizeStudents(backup.students);
     state.courses = backup.courses.map(normalizeCourse);
-    state.progress = backup.progress;
+    state.progress = normalizeProgress(backup.progress);
+    syncAllTestRewards();
     state.adminSettings = backup.adminSettings;
     await saveAll();
     return show("success", "הגיבוי יובא בהצלחה.");
@@ -1761,6 +1826,54 @@ function setAttempt(studentId, courseId, unitId, kind, attempt) {
 
 function getCurrentScore(attempt) {
   return attempt.override ? attempt.override.score : attempt.score;
+}
+
+function isSuccessfulTestAttempt(attempt) {
+  return Boolean(attempt && Number(attempt.total) > 0 && getCurrentScore(attempt) >= Number(attempt.total));
+}
+
+function syncAllTestRewards() {
+  const previousRewards = state.progress.rewards || {};
+  const nextRewards = {};
+  for (const [studentId, studentAttempts] of Object.entries(state.progress.attempts || {})) {
+    for (const [courseId, courseAttempts] of Object.entries(studentAttempts || {})) {
+      for (const [unitId, unitAttempts] of Object.entries(courseAttempts?.units || {})) {
+        const attempt = unitAttempts?.tests;
+        if (!isSuccessfulTestAttempt(attempt)) continue;
+        const existing = getTestRewardFrom(previousRewards, studentId, courseId, unitId);
+        nextRewards[studentId] = nextRewards[studentId] || {};
+        nextRewards[studentId][courseId] = nextRewards[studentId][courseId] || { units: {} };
+        nextRewards[studentId][courseId].units[unitId] = {
+          amount: TEST_REWARD_SHEKELS,
+          earnedAt: existing?.earnedAt || attempt.submittedAt || new Date().toISOString(),
+          score: getCurrentScore(attempt),
+          total: attempt.total,
+        };
+      }
+    }
+  }
+  state.progress.rewards = nextRewards;
+}
+
+function getTestRewardFrom(rewards, studentId, courseId, unitId) {
+  return rewards?.[studentId]?.[courseId]?.units?.[unitId] || null;
+}
+
+function getTestReward(studentId, courseId, unitId) {
+  return getTestRewardFrom(state.progress.rewards, studentId, courseId, unitId);
+}
+
+function getStudentRewards(studentId) {
+  const studentRewards = state.progress.rewards?.[studentId] || {};
+  return Object.values(studentRewards).flatMap((courseRewards) => Object.values(courseRewards.units || {}));
+}
+
+function getStudentRewardTotal(studentId) {
+  return getStudentRewards(studentId).reduce((sum, reward) => sum + (Number(reward.amount) || 0), 0);
+}
+
+function getStudentRewardCount(studentId) {
+  return getStudentRewards(studentId).length;
 }
 
 function countCorrectAnswers(questions, answers = {}) {
