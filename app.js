@@ -1929,14 +1929,11 @@ function createCelebrationOverlay() {
   return overlay;
 }
 
-function launchExerciseCelebration() {
-  const overlay = createCelebrationOverlay();
-  const student = getSelectedStudent();
-
+function createCelebrationConfetti(count = 72) {
   const confetti = document.createElement("div");
   confetti.className = "celebration-confetti";
   const colors = ["#f66752", "#006477", "#ffd166", "#2fbf9f", "#7a5cff", "#ff8fb3"];
-  for (let index = 0; index < 72; index += 1) {
+  for (let index = 0; index < count; index += 1) {
     const piece = document.createElement("span");
     const direction = Math.random() > 0.5 ? 1 : -1;
     piece.style.setProperty("--x", `${Math.random() * 100}vw`);
@@ -1947,6 +1944,13 @@ function launchExerciseCelebration() {
     piece.style.setProperty("--color", colors[index % colors.length]);
     confetti.appendChild(piece);
   }
+  return confetti;
+}
+
+function launchExerciseCelebration() {
+  const overlay = createCelebrationOverlay();
+  const student = getSelectedStudent();
+  const confetti = createCelebrationConfetti();
 
   const clown = document.createElement("div");
   clown.className = "celebration-clown sketch-icon";
@@ -1961,12 +1965,13 @@ function launchTestCelebration() {
   const overlay = createCelebrationOverlay();
   overlay.classList.add("test-celebration");
   const student = getSelectedStudent();
+  const confetti = createCelebrationConfetti(86);
 
   const clown = document.createElement("div");
   clown.className = "celebration-clown test-clown sketch-icon";
   clown.innerHTML = renderClownIcon(student?.avatarDataUrl);
 
-  overlay.appendChild(clown);
+  overlay.append(confetti, clown);
   document.body.appendChild(overlay);
   window.setTimeout(() => overlay.remove(), 4200);
 }
