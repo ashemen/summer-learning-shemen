@@ -59,7 +59,7 @@ const app = document.querySelector("#app");
 const state = {
   students: [],
   courses: [],
-  progress: { attempts: {} },
+  progress: { attempts: {}, rewards: {}, rewardOverrides: {} },
   adminSettings: {},
   adminAuthenticated: false,
   adminRecoveryOpen: false,
@@ -146,6 +146,7 @@ function normalizeProgress(progress) {
   return {
     attempts: progress?.attempts || {},
     rewards: progress?.rewards || {},
+    rewardOverrides: progress?.rewardOverrides || {},
   };
 }
 
@@ -1164,15 +1165,42 @@ function renderAdminScores() {
       ${
         state.students
           .map(
-            (student) => `
+            (student) => {
+              const rewardOverride = getStudentRewardOverride(student.id);
+              const automaticTotal = getStudentRewardAutomaticTotal(student.id);
+              const currentTotal = getStudentRewardTotal(student.id);
+              return `
               <article class="item reward-summary">
                 <div>
                   <h3>${escapeHtml(student.name)}</h3>
                   <p class="muted">מבחנים מושלמים: ${getStudentRewardCount(student.id)}</p>
+                  <p class="muted">סכום אוטומטי: ${automaticTotal} ₪</p>
+                  ${
+                    rewardOverride
+                      ? `<p class="message warning">הסכום עודכן ידנית. הערה: ${escapeHtml(rewardOverride.note || "ללא הערה")}</p>`
+                      : ""
+                  }
                 </div>
-                <span class="reward-amount">${getStudentRewardTotal(student.id)} ₪</span>
+                <span class="reward-amount">${currentTotal} ₪</span>
+                <form data-form="override-reward-total" data-student-id="${student.id}" class="reward-override-form">
+                  <label>סכום שקלים
+                    <input name="amount" type="number" min="0" step="1" value="${currentTotal}" />
+                  </label>
+                  <label>הערת אבא
+                    <input name="note" value="${escapeAttr(rewardOverride?.note || "")}" />
+                  </label>
+                  <div class="row-actions">
+                    <button class="secondary" type="submit">שמירת סכום</button>
+                    ${
+                      rewardOverride
+                        ? `<button class="ghost" type="button" data-action="clear-reward-override" data-student-id="${student.id}">חזרה לחישוב אוטומטי</button>`
+                        : ""
+                    }
+                  </div>
+                </form>
               </article>
-            `
+            `;
+            }
           )
           .join("") || `<div class="empty">עדיין אין תלמידות.</div>`
       }
@@ -1362,6 +1390,9 @@ async function handleClick(event) {
     deleteUnit(target.dataset.courseId, target.dataset.unitId);
     await render();
   }
+  if (action === "clear-reward-override") {
+    return clearRewardOverride(target.dataset.studentId);
+  }
   if (action === "export-backup") {
     exportBackup();
   }
@@ -1386,6 +1417,7 @@ async function handleSubmit(event) {
   if (form.dataset.form === "student-avatar") return updateStudentAvatar(data);
   if (form.dataset.form === "submit-questions") return submitQuestions(form);
   if (form.dataset.form === "override-score") return overrideScore(form, data);
+  if (form.dataset.form === "override-reward-total") return overrideRewardTotal(form, data);
   if (form.id === "import-backup") return importBackup(data);
 }
 
@@ -1994,6 +2026,34 @@ async function overrideScore(form, data) {
   return show("success", "הציון עודכן ידנית.");
 }
 
+async function overrideRewardTotal(form, data) {
+  const studentId = form.dataset.studentId;
+  const student = state.students.find((item) => item.id === studentId);
+  if (!student) return show("error", "התלמידה לא נמצאה.");
+
+  const amount = Number(data.get("amount"));
+  if (!Number.isFinite(amount) || amount < 0) {
+    return show("error", "סכום השקלים אינו תקין.");
+  }
+
+  state.progress.rewardOverrides = state.progress.rewardOverrides || {};
+  state.progress.rewardOverrides[studentId] = {
+    amount,
+    originalAmount: getStudentRewardAutomaticTotal(studentId),
+    note: String(data.get("note") || "").trim(),
+    timestamp: new Date().toISOString(),
+  };
+  saveStorage(STORAGE.progress, state.progress);
+  return show("success", "סכום השקלים עודכן ידנית.");
+}
+
+async function clearRewardOverride(studentId) {
+  if (!state.progress.rewardOverrides?.[studentId]) return;
+  delete state.progress.rewardOverrides[studentId];
+  saveStorage(STORAGE.progress, state.progress);
+  return show("success", "סכום השקלים חזר לחישוב האוטומטי.");
+}
+
 function exportBackup() {
   const backup = {
     version: 2,
@@ -2159,8 +2219,18 @@ function getStudentRewards(studentId) {
   return Object.values(studentRewards).flatMap((courseRewards) => Object.values(courseRewards.units || {}));
 }
 
-function getStudentRewardTotal(studentId) {
+function getStudentRewardOverride(studentId) {
+  const override = state.progress.rewardOverrides?.[studentId];
+  return override && Number.isFinite(Number(override.amount)) ? override : null;
+}
+
+function getStudentRewardAutomaticTotal(studentId) {
   return getStudentRewards(studentId).reduce((sum, reward) => sum + (Number(reward.amount) || 0), 0);
+}
+
+function getStudentRewardTotal(studentId) {
+  const override = getStudentRewardOverride(studentId);
+  return override ? Number(override.amount) : getStudentRewardAutomaticTotal(studentId);
 }
 
 function getStudentRewardCount(studentId) {

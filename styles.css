@@ -1142,6 +1142,13 @@ summary {
   margin-bottom: 18px;
 }
 
+.reward-override-form {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
 .table-wrap {
   overflow-x: auto;
 }
