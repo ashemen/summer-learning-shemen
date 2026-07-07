@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "id": "raya",
+    "name": "רעיה",
+    "courseIds": [
+      "reaya-decimals",
+      "reaya-percentages"
+    ]
+  }
+]
