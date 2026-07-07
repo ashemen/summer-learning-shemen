@@ -396,6 +396,17 @@ async function render() {
     ${renderDisplayModal()}
   `;
   state.message = null;
+  if (typeof renderMathInElement === "function") {
+    renderMathInElement(app, {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "$", right: "$", display: false },
+        { left: "\\(", right: "\\)", display: false },
+        { left: "\\[", right: "\\]", display: true }
+      ],
+      throwOnError: false
+    });
+  }
 }
 
 function renderStorageBanner() {
@@ -2413,7 +2424,10 @@ function markdownToHtml(markdown) {
 }
 
 function inlineMarkdown(text) {
-  return escapeHtml(text)
+  let escaped = escapeHtml(text);
+  // Parse markdown images: ![alt](url)
+  escaped = escaped.replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="lesson-image" style="max-width: 100%; height: auto; display: block; margin: 15px auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);" />');
+  return escaped
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/`(.*?)`/g, "<code>$1</code>");
 }
